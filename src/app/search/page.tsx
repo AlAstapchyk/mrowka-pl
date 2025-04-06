@@ -1,8 +1,11 @@
 import JobOfferItem from "@/components/JobOfferItem";
 import SearchFilter from "@/components/Search/SearchFilter";
+import { getJobOfferItems } from "@/db/queries";
 import React from "react";
 
-const page = () => {
+const page = async () => {
+  const JobOfferItems = await getJobOfferItems(); // Fetch the job offers
+
   return (
     <div className="container mt-4 flex">
       <div className="options">
@@ -10,7 +13,7 @@ const page = () => {
       </div>
 
       <main className="mt-4 ml-4 flex flex-grow flex-col">
-        <h1 className="mb-2 text-2xl font-bold">Seaching</h1>
+        <h1 className="mb-2 text-2xl font-bold">Searching</h1>
 
         <div className="flex">
           <div className="mx-auto flex h-10 max-w-[640px] grow items-center rounded-full bg-white">
@@ -36,18 +39,20 @@ const page = () => {
           </button>
         </div>
 
-        <hr></hr>
+        <hr />
+
+        {/* Job offers list */}
         <div className="my-4 grid gap-4">
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
-          <JobOfferItem />
+          {JobOfferItems.map((item: any) => (
+            <JobOfferItem
+              key={item.id} // Add a unique key for each item
+              title={item.title}
+              salary={item.salaryRange}
+              companyName={item.companyName}
+              location={item.location}
+              logoUrl={item.logoUrl} // Assuming 'logoUrl' is part of offer
+            />
+          ))}
         </div>
 
         <span>Pagination . . .</span>
