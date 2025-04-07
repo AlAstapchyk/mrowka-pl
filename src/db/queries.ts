@@ -12,6 +12,42 @@ export async function getUsers() {
   }
 }
 
+// Function to check if a user exists and insert/update
+export async function upsertUser(
+  email: string,
+  fullName: string,
+  role: string,
+) {
+  try {
+    // Check if the user already exists
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1); // Limit to one result
+
+    if (existingUser.length === 0) {
+      // If user doesn't exist, insert a new user
+      await db.insert(users).values({
+        email,
+        fullName,
+        role,
+      });
+      console.log("New user inserted into the database.");
+    } else {
+      // If user exists, update their data (if necessary)
+      await db
+        .update(users)
+        .set({ fullName, role })
+        .where(eq(users.email, email));
+      console.log("Existing user data updated.");
+    }
+  } catch (error) {
+    console.error("Error inserting/updating user:", error);
+    throw new Error("Error inserting/updating user");
+  }
+}
+
 export async function getJobOffers() {
   try {
     const allJobOffers = await db.select().from(jobOffers);
