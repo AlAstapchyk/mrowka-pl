@@ -33,7 +33,7 @@ export default function UpdatePasswordPage() {
   };
 
   return (
-    <div className="mx-auto mt-20 max-w-md space-y-4 p-4">
+    <div className="mx-auto mt-20 w-full max-w-md space-y-4 p-4">
       <h2 className="text-2xl font-semibold">Set a new password</h2>
       <form onSubmit={handleUpdate} className="space-y-4">
         <Input

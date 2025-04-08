@@ -1,11 +1,11 @@
-import LoginForm from "@/components/Auth/LoginForm";
+import ProfileFormProvider from "@/components/Profile/ProfileFormProvider";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <LoginForm />
+      <ProfileFormProvider />
     </Suspense>
   );
 }

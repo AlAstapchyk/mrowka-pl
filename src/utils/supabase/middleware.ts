@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
       "/auth/confirm",
       "/auth/reset-password",
       "/auth/update-password",
+      "/auth/profile-setup", // profile setup route
       "/auth", // auth routes
       "/", // home page
       "/search", // search page

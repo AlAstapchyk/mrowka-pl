@@ -16,6 +16,22 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   fullName: text("full_name").notNull(),
   role: text("role").notNull(), // can be enum too
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const jobSeekerProfiles = pgTable("job_seeker_profiles", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, {
+      onDelete: "cascade",
+    }),
+  phoneNumber: text("phone_number"),
+  resumeLink: text("resume_link"),
+  skills: text("skills").array(),
+  education: text("education"),
+  locationPreference: text("location_preference"),
+  linkedInUrl: text("linkedin_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

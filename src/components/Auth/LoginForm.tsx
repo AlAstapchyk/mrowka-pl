@@ -66,16 +66,6 @@ export default function LoginForm() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (user) return null;
-
   return (
     <div className="mx-auto w-96 max-w-md space-y-6 p-6">
       <h1 className="text-2xl font-bold">Log in to your account</h1>

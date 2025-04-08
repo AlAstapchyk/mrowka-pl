@@ -34,7 +34,7 @@ export default function ResetPage() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <Button type="submit" disabled={loading}>
+        <Button className="w-full" type="submit" disabled={loading}>
           {loading ? "Sending..." : "Send Reset Link"}
         </Button>
       </form>

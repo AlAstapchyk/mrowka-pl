@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
       // Call the upsertUser function to insert or update the user data
       try {
         await upsertUser(
+          user.id,
           user.email,
           user.user_metadata.full_name ?? "",
           user.user_metadata.role ?? "job_seeker",
