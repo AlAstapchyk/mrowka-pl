@@ -10,9 +10,10 @@ import axios from "axios";
 import { ProfileInfoForm } from "./ProfileInfoForm";
 import { JobSeekerProfileForm } from "./JobSeekerProfileForm";
 import LoadingSpinner from "../LoadingSpinner";
+import AvatarUploader from "../AvatarUploader";
+import { supabase } from "@/utils/supabase/client";
 
 const profileSchema = z.object({
-  avatarUrl: z.string(),
   fullName: z.string().min(1, "Required"),
   phoneNumber: z.string(),
   resumeLink: z.string(),
@@ -32,7 +33,6 @@ export default function ProfilePage() {
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      avatarUrl: "",
       fullName: "",
       phoneNumber: "",
       resumeLink: "",
@@ -89,7 +89,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     form.reset({
-      avatarUrl: userData?.avatarUrl || "",
       fullName: userData?.fullName || "",
       phoneNumber: userData?.phoneNumber || "",
       resumeLink: userData?.resumeLink || "",
@@ -136,6 +135,12 @@ export default function ProfilePage() {
       .catch((error) => {
         console.error("Error updating job seeker profile:", error);
       });
+
+    supabase.auth.updateUser({
+      data: {
+        full_name: updatedData.fullName,
+      },
+    });
   };
 
   if (loadingForm) return <LoadingSpinner />;
@@ -147,13 +152,20 @@ export default function ProfilePage() {
           : "Recruiter Profile"}
       </h1>
 
+      {user ? <AvatarUploader userId={user.id} /> : ""}
+
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <ProfileInfoForm />
 
+          <span className="text-sm">
+            <b className="font-semibold">Email:</b> <i>{userData.email}</i>
+          </span>
+
+          <hr className="my-6" />
+
           {userData.role === "job_seeker" && (
             <>
-              <h2 className="mb-6 text-xl font-semibold">Job Seeker Info</h2>
               <JobSeekerProfileForm />
             </>
           )}

@@ -43,7 +43,6 @@ export async function updateUser(id: string, userData: any) {
     const updatedUser = await db
       .update(users)
       .set({
-        avatarUrl: userData.avatarUrl,
         fullName: userData.fullName,
       })
       .where(eq(users.id, id))

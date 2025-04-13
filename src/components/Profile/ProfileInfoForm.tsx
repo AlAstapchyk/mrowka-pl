@@ -14,27 +14,13 @@ export const ProfileInfoForm = () => {
   const { control } = useFormContext(); // Access the form context
 
   return (
-    <div className="space-y-6">
-      <FormField
-        control={control}
-        name="avatarUrl"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Avatar URL</FormLabel>
-            <FormControl>
-              <Input placeholder="https://..." {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
+    <div className="mt-6 mb-4">
       <FormField
         control={control}
         name="fullName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>First Name</FormLabel>
+            <FormLabel>Full Name</FormLabel>
             <FormControl>
               <Input placeholder="Jakub Kowalski" {...field} />
             </FormControl>

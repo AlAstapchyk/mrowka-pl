@@ -1,8 +1,8 @@
+import RegisterForm from "@/components/Auth/RegisterForm";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 
 export default function RegisterPage() {
-  const RegisterForm = lazy(() => import("@/components/Auth/RegisterForm"));
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RegisterForm />

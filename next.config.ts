@@ -1,3 +1,8 @@
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+
+// Extract the hostname only (removes "https://")
+const supabaseHostname = new URL(supabaseUrl).hostname;
+
 // next.config.ts
 // X-Frame-Options: DENY: Prevents your site from being embedded in iframes (clickjacking protection)
 // X-Content-Type-Options: nosniff: Prevents MIME type sniffing
@@ -29,5 +34,8 @@ module.exports = {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
+  },
+  images: {
+    domains: [supabaseHostname],
   },
 };
