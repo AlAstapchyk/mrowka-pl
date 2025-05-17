@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/client";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -47,6 +47,8 @@ export default function LoginForm() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     const { email, haslo } = values;
+
+    const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithPassword({
       email,

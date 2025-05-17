@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form"; // Import FormProvider
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,9 +9,9 @@ import { useAuth } from "@/providers/AuthProvider";
 import axios from "axios";
 import { ProfileInfoForm } from "./ProfileInfoForm";
 import { JobSeekerProfileForm } from "./JobSeekerProfileForm";
-import LoadingSpinner from "../LoadingSpinner";
+import LoadingSpinner from "../ui/LoadingSpinner";
 import AvatarUploader from "../AvatarUploader";
-import { supabase } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 const profileSchema = z.object({
   fullName: z.string().min(1, "Required"),
@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [userData, setUserData] = useState<any>(null);
   const { user } = useAuth();
   const [loadingForm, setLoadingForm] = useState<boolean>(true);
+  const hasFetched = useRef(false);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -43,26 +44,36 @@ export default function ProfilePage() {
     },
   });
 
+
   useEffect(() => {
-    if (!user || !loadingForm) return;
+    if (!user || hasFetched.current) return;
+
+    hasFetched.current = true;
 
     const fetchData = async () => {
       let baseUserData, jobsSeekerProfileData;
       try {
+        console.log("Fetching user data from:", `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`);
         const userResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`,
         );
 
         baseUserData = userResponse.data;
 
+        console.log("Fetching job seeker profile from:", `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`);
+
         if (baseUserData.role === "job_seeker") {
-          const seekerRes = await axios
-            .get(
-              `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`,
-            )
-            .catch();
-          seekerRes.data.skills = seekerRes.data.skills.join(", ");
-          jobsSeekerProfileData = seekerRes.data;
+          try {
+            const seekerRes = await axios.get(
+              `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`
+            );
+            seekerRes.data.skills = seekerRes.data.skills.join(", ");
+            jobsSeekerProfileData = seekerRes.data;
+          } catch (error: any) {
+            if (error.status === 404)
+              console.warn("No job seeker profile found. (Likely first time login)");
+            else console.error(error)
+          }
         }
         // else if (baseUserData.role === "recruiter") {
         //   const recruiterRes = await axios.get(
@@ -73,12 +84,12 @@ export default function ProfilePage() {
         //     ...recruiterRes.data,
         //   }));
         // }
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
+      } catch (error: any) {
+        if (error.status === 400) console.error(error.message)
       } finally {
         setUserData({
           ...baseUserData,
-          ...jobsSeekerProfileData,
+          ...(jobsSeekerProfileData ?? {}),
         });
         setLoadingForm(false);
       }
@@ -135,6 +146,8 @@ export default function ProfilePage() {
       .catch((error) => {
         console.error("Error updating job seeker profile:", error);
       });
+
+    const supabase = createClient();
 
     supabase.auth.updateUser({
       data: {

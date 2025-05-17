@@ -1,4 +1,3 @@
-"use server";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getJobSeekerProfileByUserId,
@@ -7,21 +6,23 @@ import {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> },
+  { params }: { params: Promise<{ userId: string }> }, // params is promise
 ) {
   const { userId } = await params;
 
-  if (typeof userId !== "string")
+  if (!userId || typeof userId !== "string") {
     return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+  }
 
   try {
     const seeker = await getJobSeekerProfileByUserId(userId);
 
-    if (!seeker)
+    if (!seeker) {
       return NextResponse.json(
         { error: "Job seeker profile is not found" },
         { status: 404 },
       );
+    }
 
     return NextResponse.json(seeker);
   } catch (error) {

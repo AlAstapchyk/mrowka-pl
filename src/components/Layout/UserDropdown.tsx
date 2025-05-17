@@ -10,12 +10,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { UserIcon } from "lucide-react";
-import { supabase } from "@/utils/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "../ui/LoadingSpinner";
 import { useEffect, useState } from "react";
-import { getAvatarUrl } from "@/utils/supabase/storageUtils";
+import { getAvatarUrl } from "@/utils/supabase/storage-client";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
 
 export default function UserDropdown() {
   const router = useRouter();
@@ -97,7 +97,9 @@ export default function UserDropdown() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="cursor-pointer"
           onClick={async () => {
+            const supabase = createClient();
             await supabase.auth.signOut();
             router.push("/");
           }}

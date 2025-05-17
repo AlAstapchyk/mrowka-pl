@@ -1,5 +1,5 @@
 import React from "react";
-import JobOfferItem from "../JobOfferItem";
+import JobOfferItem from "./JobOfferItem";
 
 const SearchFilter = () => {
   return (

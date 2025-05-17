@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/utils/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
@@ -15,6 +15,8 @@ export default function UpdatePasswordPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    const supabase = createClient();
 
     const { error } = await supabase.auth.updateUser({
       password,
