@@ -1,4 +1,3 @@
-"use server";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getJobSeekerProfileByUserId,
@@ -7,9 +6,9 @@ import {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> },
+  { params }: { params: { userId: string } },
 ) {
-  const { userId } = await params;
+  const { userId } = params;
 
   if (typeof userId !== "string")
     return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
@@ -32,9 +31,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> },
+  { params }: { params: { userId: string } },
 ) {
-  const { userId } = await params;
+  const { userId } = params;
   const jobSeekerProfileData = await req.json();
 
   console.log("Updating job seeker profile for userId:", userId);

@@ -1,23 +1,28 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server"; // Supabase client
+import { createClient } from "@/utils/supabase/server";
 import { upsertUser } from "@/db/queries";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/";
 
   const redirectTo = request.nextUrl.clone();
-  redirectTo.pathname = next;
+  redirectTo.pathname = "/";
   redirectTo.searchParams.delete("token_hash");
   redirectTo.searchParams.delete("type");
+
+  const response = new NextResponse(null, {
+    status: 302,
+    headers: {
+      Location: redirectTo.toString(),
+    },
+  });
 
   if (token_hash && type) {
     const supabase = await createClient();
 
-    // Verify OTP
     const { data, error } = await supabase.auth.verifyOtp({
       type,
       token_hash,
@@ -25,14 +30,19 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.log("OTP verification error:", error.message);
-      redirectTo.pathname = "/error";
-      return NextResponse.redirect(redirectTo);
+      response.headers.set("Location", "/error");
+      return response;
     }
+
+    const codeVerifierCookie = request.cookies
+      .getAll()
+      .find((cookie) => cookie.name.endsWith("-auth-token-code-verifier"));
+
+    if (codeVerifierCookie) response.cookies.delete(codeVerifierCookie.name);
 
     const user = data?.user;
 
     if (user && user.email) {
-      // Call the upsertUser function to insert or update the user data
       try {
         await upsertUser(
           user.id,
@@ -41,16 +51,14 @@ export async function GET(request: NextRequest) {
           user.user_metadata.role ?? "job_seeker",
         );
       } catch (error) {
-        redirectTo.pathname = "/error";
-        return NextResponse.redirect(redirectTo);
+        response.headers.set("Location", "/error");
+        return response;
       }
 
-      redirectTo.searchParams.delete("next");
-      return NextResponse.redirect(redirectTo);
+      return response;
     }
   }
 
-  // If OTP verification fails or there's an error, redirect to the error page
-  redirectTo.pathname = "/error";
-  return NextResponse.redirect(redirectTo);
+  response.headers.set("Location", "/error");
+  return response;
 }

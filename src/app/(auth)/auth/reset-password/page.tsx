@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { resetPassword } from "@/lib/auth-actions";
+import { resetPassword } from "@/lib/auth-client";
 
 export default function ResetPage() {
   const [email, setEmail] = useState("");

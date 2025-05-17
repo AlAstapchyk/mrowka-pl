@@ -1,6 +1,4 @@
 import { createClient } from "@/utils/supabase/server";
-import { Button } from "@/components/ui/button";
-import { logout } from "@/lib/auth-actions";
 
 export default async function PrivatePage() {
   const supabase = await createClient();
@@ -12,10 +10,6 @@ export default async function PrivatePage() {
         <p>Hello, {data.user.user_metadata.full_name}</p>
         <p>Your email: {data.user.email}</p>
         <p>Your role: {data.user.user_metadata.role}</p>
-
-        <Button className="mt-4" onClick={logout}>
-          Log Out
-        </Button>
       </main>
     );
 }

@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useState, ChangeEvent, useEffect } from "react";
-import { supabase } from "@/utils/supabase/client";
-import { getAvatarUrl } from "@/utils/supabase/storageUtils";
+import { getAvatarUrl } from "@/utils/supabase/storage-client";
 import { LucideUser } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function AvatarUploader({ userId }: { userId: string }) {
   const [uploading, setUploading] = useState(false);
@@ -23,6 +23,7 @@ export default function AvatarUploader({ userId }: { userId: string }) {
 
     try {
       // List all files
+      const supabase = createClient();
       const { data: existingFiles, error: listError } = await supabase.storage
         .from("avatars")
         .list(`${userId}/`);

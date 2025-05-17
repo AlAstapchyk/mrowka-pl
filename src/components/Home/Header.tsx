@@ -7,7 +7,7 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col gap-4 bg-blue-950 px-2 py-24">
+    <div className="flex flex-col gap-4 bg-gray-500 px-2 py-24">
       <span className="mx-auto text-3xl text-white">Searching for a job?</span>
       <span className="mx-auto text-2xl text-white">Find with us!</span>
 
@@ -30,7 +30,7 @@ const Header = () => {
 
       <button
         className="m-auto flex cursor-pointer items-center rounded-full bg-red-700 px-6 py-1 text-white"
-        onClick={() => router.push("/search")}
+        onClick={() => router.push("/jobs")}
       >
         Search
       </button>

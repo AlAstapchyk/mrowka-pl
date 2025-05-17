@@ -1,5 +1,5 @@
-import JobOfferItem from "@/components/JobOfferItem";
-import SearchFilter from "@/components/Search/SearchFilter";
+import JobOfferItem from "@/components/Jobs/JobOfferItem";
+import SearchFilter from "@/components/Jobs/SearchFilter";
 import { getJobOfferItems } from "@/db/queries";
 import React from "react";
 

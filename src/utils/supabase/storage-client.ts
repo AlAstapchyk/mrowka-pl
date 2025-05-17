@@ -1,7 +1,11 @@
-import { supabase } from "./client";
+"use client";
+
+import { createClient } from "./client";
 
 export const getAvatarUrl = async (userId: string): Promise<string | null> => {
   try {
+    const supabase = createClient();
+
     const { data, error } = await supabase.storage
       .from("avatars")
       .list(`${userId}/`);

@@ -29,27 +29,23 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Do not run code between createServerClient and supabase.auth.getUser()
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   // Check if the user is trying to access a protected route, but isn't authenticated
-  if (
-    !user &&
-    ![
-      "/login", // login route
-      "/register",
-      "/auth/confirm",
-      "/auth/reset-password",
-      "/auth/update-password",
-      "/auth/profile-setup", // profile setup route
-      "/auth", // auth routes
-      "/", // home page
-      "/search", // search page
-    ].includes(request.nextUrl.pathname)
-  ) {
-    // User is not authenticated, redirect to the login page
+  const publicRoutes = new Set([
+    "/",
+    "/jobs",
+    "/register",
+    "/api/auth/confirm-email",
+    "/login",
+    "/auth/reset-password",
+    "/auth/update-password",
+    "/goodbye",
+  ]);
+
+  if (!user && !publicRoutes.has(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

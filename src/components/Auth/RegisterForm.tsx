@@ -4,7 +4,6 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import {
   Form,
@@ -18,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
 
 const formSchema = z
   .object({
@@ -58,6 +58,8 @@ export default function RegisterForm() {
 
     const { email, password, role, firstName, lastName } = values;
 
+    const supabase = createClient();
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -79,21 +81,19 @@ export default function RegisterForm() {
         return;
       }
 
-      if (
-        data.user?.user_metadata.email_verified === undefined ||
-        data.user?.user_metadata.email_verified !== false
-      ) {
-        toast.error(
-          "An email is sent or an account with this email already exists.",
-        );
+      if (data.user && !data.user.identities?.length) {
         form.setError("email", {
           type: "manual",
-          message: "An account with this email already exists.",
+          message: "An account with this email already exists",
         });
+        toast.error("An account with this email already exists");
       } else {
-        toast.success("Check your email to confirm your account.");
+        toast.success("Registration successful!", {
+          description: "Please check your email to confirm your account",
+        });
         router.push("/login");
       }
+
     } catch (error: any) {
       setLoading(false);
       toast.error(`Sign up failed: ${error.message}`);
