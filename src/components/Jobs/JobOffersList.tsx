@@ -1,9 +1,9 @@
 import React from "react";
 import JobOfferItem from "./JobOfferItem";
-import { getJobOfferItems } from "@/db/queries";
+import { getJobOffers } from "@/db/queries";
 
 const JobOffersList = async () => {
-  const jobOfferItems = await getJobOfferItems();
+  const jobOfferItems = await getJobOffers();
   const limitedItems = jobOfferItems.slice(0, 6); // get first 6 items
 
   return (
@@ -11,6 +11,7 @@ const JobOffersList = async () => {
       {limitedItems.map((item: any) => (
         <JobOfferItem
           key={item.id}
+          id={item.id}
           title={item.title}
           salary={item.salaryRange}
           companyName={item.companyName}

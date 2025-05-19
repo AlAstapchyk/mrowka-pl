@@ -1,6 +1,8 @@
+import Link from "next/link";
 import React from "react";
 
 interface JobOfferItemProps {
+  id: string;
   title: string;
   salary: string;
   companyName: string;
@@ -9,6 +11,7 @@ interface JobOfferItemProps {
 }
 
 const JobOfferItem: React.FC<JobOfferItemProps> = ({
+  id,
   title,
   salary,
   companyName,
@@ -16,7 +19,7 @@ const JobOfferItem: React.FC<JobOfferItemProps> = ({
   logoUrl,
 }) => {
   return (
-    <div className="flex flex-col rounded-xl border-[1px] border-gray-700 p-4">
+    <Link href={`/jobs/view/${id}`} className="flex flex-col rounded-xl border-[1px] border-gray-700 p-4">
       <span className="font-semibold">{title}</span>
 
       <span className="text-sm">{salary}</span>
@@ -34,7 +37,7 @@ const JobOfferItem: React.FC<JobOfferItemProps> = ({
           <span className="text-sm">{location}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

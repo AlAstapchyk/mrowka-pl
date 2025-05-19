@@ -34,24 +34,33 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Check if the user is trying to access a protected route, but isn't authenticated
-  const publicRoutes = new Set([
+  const exactPublicRoutes = new Set([
     "/",
     "/jobs",
     "/register",
-    "/api/auth/confirm-email",
     "/login",
     "/auth/reset-password",
     "/auth/update-password",
+    "/api/auth/confirm-email",
     "/goodbye",
   ]);
 
-  if (!user && !publicRoutes.has(request.nextUrl.pathname)) {
+  const publicRoutePrefixes = ["/jobs/view"];
+
+  if (!user && !isPublicRoute(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
   return supabaseResponse;
+
+  function isPublicRoute(pathname: string): boolean {
+    return (
+      exactPublicRoutes.has(pathname) ||
+      publicRoutePrefixes.some((prefix) => pathname.startsWith(prefix))
+    );
+  }
 }
 
 export const config = {

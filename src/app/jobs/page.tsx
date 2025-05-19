@@ -1,10 +1,10 @@
 import JobOfferItem from "@/components/Jobs/JobOfferItem";
 import SearchFilter from "@/components/Jobs/SearchFilter";
-import { getJobOfferItems } from "@/db/queries";
+import { getJobOffers } from "@/db/queries";
 import React from "react";
 
 const page = async () => {
-  const JobOfferItems = await getJobOfferItems(); // Fetch the job offers
+  const JobOfferItems = await getJobOffers(); // Fetch the job offers
 
   return (
     <div className="container mt-4 flex">
@@ -46,6 +46,7 @@ const page = async () => {
           {JobOfferItems.map((item: any) => (
             <JobOfferItem
               key={item.id} // Add a unique key for each item
+              id={item.id}
               title={item.title}
               salary={item.salaryRange}
               companyName={item.companyName}

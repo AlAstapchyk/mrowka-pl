@@ -32,7 +32,7 @@ export async function PUT(
   const userData = await req.json();
 
   try {
-    const updatedUser = await updateUser(id, userData); // Ensure this method is correct
+    const updatedUser = await updateUser(id, userData);
 
     if (!updatedUser) {
       return NextResponse.json(

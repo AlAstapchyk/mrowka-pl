@@ -11,11 +11,32 @@ export const employmentType = pgEnum("employment_type", [
   "internship",
 ]);
 
+export const jobLevel = pgEnum("job_level", [
+  "intern",
+  "junior",
+  "middle",
+  "senior",
+  "lead",
+]);
+
+export const workingMode = pgEnum("working_mode", [
+  "remote",
+  "hybrid",
+  "onsite",
+]);
+
+export const applicationStatusEnum = pgEnum("application_status", [
+  "pending",
+  "reviewed",
+  "accepted",
+  "rejected",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   fullName: text("full_name").notNull(),
-  role: text("role").notNull(), // can be enum too
+  role: text("role").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -50,13 +71,28 @@ export const jobOffers = pgTable("job_offers", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   employmentType: employmentType("employment_type").notNull(),
+  jobLevel: jobLevel("job_level").notNull(),
+  workingMode: workingMode("working_mode").notNull(),
   salaryRange: text("salary_range"),
   location: text("location"),
   companyId: uuid("company_id")
     .notNull()
-    .references(() => companies.id),
+    .references(() => companies.id, { onDelete: "cascade" }),
   postedBy: uuid("posted_by")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const jobApplications = pgTable("job_applications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  jobId: uuid("job_id")
+    .notNull()
+    .references(() => jobOffers.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  status: applicationStatusEnum("status").default("pending").notNull(),
+  appliedAt: timestamp("applied_at").defaultNow().notNull(),
+  coverLetter: text("cover_letter").notNull(),
 });
