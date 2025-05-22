@@ -14,6 +14,7 @@ import ReactMarkdown from "react-markdown";
 import BackButton from "@/components/Jobs/BackButton";
 import JobOfferCardFooter from "@/components/Jobs/View/JobOfferCardFooter";
 import { createClient } from "@/utils/supabase/server";
+import { EMPLOYMENT_TYPES, getLabelById, JOB_LEVELS, WORKING_MODES } from "@/mapping";
 
 type PageProps = {
     params: Promise<{
@@ -67,22 +68,22 @@ const Page = async ({ params }: PageProps) => {
 
                         <div className="flex items-center space-x-2">
                             <DollarSign className="w-5 h-5" />
-                            <span>{jobOffer.salaryRange}</span>
+                            <span>{jobOffer.minSalary?.toLocaleString("pl-PL")} - {jobOffer.maxSalary?.toLocaleString("pl-PL")} {jobOffer.currency}</span>
                         </div>
 
                         <div className="flex items-center space-x-2">
                             <Clock className="w-5 h-5" />
-                            <span>{jobOffer.workingMode}</span>
+                            <span>{getLabelById(WORKING_MODES, jobOffer.workingMode)}</span>
                         </div>
 
                         <div className="flex items-center space-x-2">
                             <Briefcase className="w-5 h-5" />
-                            <span>{jobOffer.employmentType}</span>
+                            <span>{getLabelById(EMPLOYMENT_TYPES, jobOffer.employmentType)}</span>
                         </div>
 
                         <div className="flex items-center space-x-2">
                             <Layers className="w-5 h-5" />
-                            <span>{jobOffer.jobLevel}</span>
+                            <span>{getLabelById(JOB_LEVELS, jobOffer.jobLevel)}</span>
                         </div>
 
                         <div className="flex items-center space-x-2">

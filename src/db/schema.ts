@@ -1,4 +1,12 @@
-import { pgTable, text, uuid, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { InferModel } from "drizzle-orm";
+import {
+  pgTable,
+  text,
+  uuid,
+  timestamp,
+  pgEnum,
+  integer,
+} from "drizzle-orm/pg-core";
 
 export const employmentType = pgEnum("employment_type", [
   "employment",
@@ -70,20 +78,17 @@ export const jobOffers = pgTable("job_offers", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  employmentType: employmentType("employment_type").notNull(),
-  jobLevel: jobLevel("job_level").notNull(),
-  workingMode: workingMode("working_mode").notNull(),
-  salaryRange: text("salary_range"),
-  location: text("location"),
-  companyId: uuid("company_id")
-    .notNull()
-    .references(() => companies.id, { onDelete: "cascade" }),
-  postedBy: uuid("posted_by")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
+  minSalary: integer("min_salary"),
+  maxSalary: integer("max_salary"),
+  currency: text("currency").default("PLN").notNull(),
+  location: text("location").notNull(),
+  employmentType: text("employment_type").notNull(),
+  jobLevel: text("job_level").notNull(),
+  workingMode: text("working_mode").notNull(),
+  companyId: uuid("company_id").notNull(),
+  postedBy: uuid("posted_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
 export const jobApplications = pgTable("job_applications", {
   id: uuid("id").primaryKey().defaultRandom(),
   jobId: uuid("job_id")
@@ -96,3 +101,15 @@ export const jobApplications = pgTable("job_applications", {
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
   coverLetter: text("cover_letter").notNull(),
 });
+
+export type EmploymentType = (typeof employmentType)["enumValues"][number];
+export type JobLevel = (typeof jobLevel)["enumValues"][number];
+export type WorkingMode = (typeof workingMode)["enumValues"][number];
+export type ApplicationStatus =
+  (typeof applicationStatusEnum)["enumValues"][number];
+
+export type User = InferModel<typeof users>;
+export type JobSeekerProfile = InferModel<typeof jobSeekerProfiles>;
+export type Company = InferModel<typeof companies>;
+export type JobOffer = InferModel<typeof jobOffers>;
+export type JobApplication = InferModel<typeof jobApplications>;

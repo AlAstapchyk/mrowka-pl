@@ -1,93 +1,165 @@
-import React from "react";
-import JobOfferItem from "./JobOfferItem";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useJobSearch } from '@/hooks/useJobSearch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '../ui/checkbox';
+import { Button } from '../ui/button';
+import { EmploymentType, JobLevel, WorkingMode } from '@/db/schema';
+import { EMPLOYMENT_TYPES, JOB_LEVELS, WORKING_MODES } from '@/mapping';
 
 const SearchFilter = () => {
+  const { params, updateParams } = useJobSearch();
+
+  const [jobLevel, setJobLevel] = useState<JobLevel[]>(params.jobLevel || []);
+  const [workingMode, setWorkingMode] = useState<WorkingMode[]>(params.workingMode || []);
+  const [employmentType, setEmploymentType] = useState<EmploymentType[]>(params.employmentType || []);
+  const [minSalary, setMinSalary] = useState<number | string>(params.minSalary || 0);
+
+  useEffect(() => {
+    setJobLevel(params.jobLevel || []);
+    setWorkingMode(params.workingMode || []);
+    setEmploymentType(params.employmentType || []);
+    setMinSalary(params.minSalary || '');
+  }, []);
+
+  const handleJobLevelChange = (level: string, checked: boolean) => {
+    setJobLevel(prev =>
+      checked ? [...prev, level] as JobLevel[] : prev.filter(l => l !== level)
+    );
+  };
+
+  const handleWorkingModeChange = (mode: string, checked: boolean) => {
+    setWorkingMode(prev =>
+      checked ? [...prev, mode] as WorkingMode[] : prev.filter(m => m !== mode)
+    );
+  };
+
+  const handleEmploymentTypeChange = (type: string, checked: boolean) => {
+    setEmploymentType(prev =>
+      checked ? [...prev, type] as EmploymentType[] : prev.filter(t => t !== type)
+    );
+  };
+
+  const handleMinSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMinSalary(e.target.value);
+  };
+
+  const handleSearch = () => {
+    updateParams({
+      ...params,
+      jobLevel,
+      workingMode,
+      employmentType,
+      minSalary: Number(minSalary),
+    });
+  };
+
   return (
-    <div className="flex w-[12rem] flex-col rounded-lg border border-gray-700 p-4">
-      <p className="flex text-xl font-bold">Job level</p>
-      <div className="flex flex-col">
-        <label>
-          <input type="checkbox" name="role" value="trainee" /> Trainee/Intern
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="assistant" /> Assistant
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="junior" /> Junior
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="middle" /> Middle
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="senior" /> Senior
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="expert" /> Expert
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="coordinator" /> Coordinator
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="manager" /> Manager
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="director" /> Director
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="president" /> President
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="handworker" /> Handworker
-        </label>
-      </div>
+    <div className="w-60 border rounded-xl mt-4 mb-8 border-black">
+      <header className="px-6 py-4 border-b border-black">
+        <p className='text-xl font-semibold'>Filters</p>
+      </header>
+      <div className="space-y-6 p-6">
+        <div className="space-y-2">
+          <h3 className="font-semibold">Job Level</h3>
+          <div className="space-y-2">
+            {JOB_LEVELS.map((level) => (
+              <div key={level.id} className="flex items-center">
+                <Checkbox
+                  id={`job-level-${level.id}`}
+                  className='cursor-pointer'
+                  checked={jobLevel.includes(level.id as JobLevel)}
+                  onCheckedChange={(checked) =>
+                    handleJobLevelChange(level.id, checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor={`job-level-${level.id}`}
+                  className="text-sm font-normal pl-2 flex cursor-pointer"
+                >
+                  {level.label}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      <p className="flex pt-2 text-xl font-bold">Salary</p>
-      <div className="flex">
-        From <input className="mx-2 w-18 min-w-4" type="number"></input>
-        zł
-      </div>
+        <hr />
 
-      <p className="flex pt-2 text-xl font-bold">Working mode</p>
-      <div className="flex flex-col">
-        <label>
-          <input type="checkbox" name="role" value="stationary" /> Stationary
-          work
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="hybrid" /> Hybrid work
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="remote" /> Remote work
-        </label>
-      </div>
+        <div className="space-y-2">
+          <h3 className="font-semibold">Salary</h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">From</span>
+            <Input
+              type="number"
+              value={minSalary || ''}
+              onChange={handleMinSalaryChange}
+              className="h-8 w-24"
+            />
+            <span className="text-sm">zł</span>
+          </div>
+        </div>
 
-      <p className="flex pt-2 text-xl font-bold">Type of contract</p>
-      <div className="flex flex-col">
-        <label>
-          <input type="checkbox" name="role" value="stationary" /> Employment
-          contract
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="hybrid" /> Contract for work
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="remote" /> Contract of
-          mandate
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="stationary" /> Contract B2B
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="hybrid" /> Replacement
-          contract
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="remote" /> Agency agreement
-        </label>
-        <label>
-          <input type="checkbox" name="role" value="stationary" /> Internship
-          contract
-        </label>
+        <hr />
+
+        <div className="space-y-2">
+          <h3 className="font-semibold">Working Mode</h3>
+          <div className="space-y-2">
+            {WORKING_MODES.map((mode) => (
+              <div key={mode.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`working-mode-${mode.id}`}
+                  checked={workingMode.includes(mode.id as WorkingMode)}
+                  className='cursor-pointer'
+                  onCheckedChange={(checked) =>
+                    handleWorkingModeChange(mode.id, checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor={`working-mode-${mode.id}`}
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  {mode.label}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <hr />
+
+        <div className="space-y-2">
+          <h3 className="font-semibold">Type of Contract</h3>
+          <div className="space-y-2">
+            {EMPLOYMENT_TYPES.map((employment) => (
+              <div key={employment.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`employment-type-${employment.id}`}
+                  checked={employmentType.includes(employment.id as EmploymentType)}
+                  className='cursor-pointer'
+                  onCheckedChange={(checked) =>
+                    handleEmploymentTypeChange(employment.id, checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor={`employment-type-${employment.id}`}
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  {employment.label}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Button
+          onClick={handleSearch}
+          className='mx-auto flex'
+        >
+          Apply filters
+        </Button>
       </div>
     </div>
   );

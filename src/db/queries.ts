@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, or } from "drizzle-orm";
 import db from ".";
 import {
   companies,
@@ -7,6 +7,7 @@ import {
   jobSeekerProfiles,
   users,
 } from "./schema";
+import { JobSearchParams } from "@/types";
 
 // #region Users
 
@@ -163,28 +164,109 @@ export async function getJobSeekerProfileByUserId(userId: string) {
 
 // #region Job Offers
 
-export async function getJobOffers() {
-  try {
-    const allJobOffers = await db
-      .select({
-        id: jobOffers.id,
-        title: jobOffers.title,
-        salaryRange: jobOffers.salaryRange,
-        location: jobOffers.location,
-        employmentType: jobOffers.employmentType,
-        jobLevel: jobOffers.jobLevel,
-        workingMode: jobOffers.workingMode,
-        companyName: companies.name,
-        logoUrl: companies.logo_url,
-      })
-      .from(jobOffers)
-      .leftJoin(companies, eq(companies.id, jobOffers.companyId));
+export interface FilteredJobOffer {
+  id: string;
+  title: string;
+  minSalary: number | null;
+  maxSalary: number | null;
+  currency: string;
+  location: string;
+  employmentType: string;
+  jobLevel: string;
+  workingMode: string;
+  companyName: string | null;
+  logoUrl: string | null;
+}
+// offers without description
+export async function getFilteredJobOffers(params: JobSearchParams = {}) {
+  const {
+    query = "",
+    location = "",
+    jobLevel = [],
+    workingMode = [],
+    employmentType = [],
+    minSalary = 0,
+    page = 1,
+    pageSize = 5,
+    sortDirection = "desc",
+  } = params;
 
-    return allJobOffers;
-  } catch (error) {
-    console.error("Error fetching job offers:", error);
-    throw new Error("Error fetching job offers");
+  const offset = (page - 1) * pageSize;
+
+  const filters = [];
+
+  if (query) {
+    filters.push(
+      or(
+        ilike(jobOffers.title, `%${query}%`),
+        ilike(companies.name, `%${query}%`),
+      ),
+    );
   }
+
+  if (location) {
+    filters.push(ilike(jobOffers.location, `%${location}%`));
+  }
+
+  if (jobLevel.length > 0) {
+    filters.push(or(...jobLevel.map((level) => eq(jobOffers.jobLevel, level))));
+  }
+
+  if (workingMode.length > 0) {
+    filters.push(
+      or(...workingMode.map((mode) => eq(jobOffers.workingMode, mode))),
+    );
+  }
+
+  if (employmentType.length > 0) {
+    filters.push(
+      or(...employmentType.map((type) => eq(jobOffers.employmentType, type))),
+    );
+  }
+
+  if (minSalary > 0) {
+    filters.push(gte(jobOffers.maxSalary, minSalary));
+  }
+
+  const whereClause = filters.length ? and(...filters) : undefined;
+
+  const sortColumn = jobOffers.createdAt;
+
+  // Count total
+  const countResult = await db
+    .select({ count: jobOffers.id })
+    .from(jobOffers)
+    .leftJoin(companies, eq(companies.id, jobOffers.companyId))
+    .where(whereClause);
+
+  const totalCount = countResult.length;
+
+  // Fetch paginated results
+  const data: FilteredJobOffer[] = await db
+    .select({
+      id: jobOffers.id,
+      title: jobOffers.title,
+      minSalary: jobOffers.minSalary,
+      maxSalary: jobOffers.maxSalary,
+      currency: jobOffers.currency,
+      location: jobOffers.location,
+      employmentType: jobOffers.employmentType,
+      jobLevel: jobOffers.jobLevel,
+      workingMode: jobOffers.workingMode,
+      companyName: companies.name,
+      logoUrl: companies.logo_url,
+    })
+    .from(jobOffers)
+    .leftJoin(companies, eq(companies.id, jobOffers.companyId))
+    .where(whereClause)
+    .orderBy(sortDirection === "asc" ? asc(sortColumn) : desc(sortColumn))
+    .limit(pageSize)
+    .offset(offset);
+
+  return {
+    data,
+    count: totalCount,
+  };
 }
 
 export async function getJobOfferById(offerId: string) {
@@ -193,7 +275,9 @@ export async function getJobOfferById(offerId: string) {
       .select({
         id: jobOffers.id,
         title: jobOffers.title,
-        salaryRange: jobOffers.salaryRange,
+        minSalary: jobOffers.minSalary,
+        maxSalary: jobOffers.maxSalary,
+        currency: jobOffers.currency,
         location: jobOffers.location,
         employmentType: jobOffers.employmentType,
         jobLevel: jobOffers.jobLevel,

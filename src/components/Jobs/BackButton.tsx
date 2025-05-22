@@ -8,13 +8,13 @@ const BackButton = () => {
     const router = useRouter();
 
     const handleBack = () => {
-        const referrer = document.referrer;
-
-        // If referrer is from the same domain, go back
-        if (referrer && new URL(referrer).origin === window.location.origin) {
+        if (window.history.length > 1) {
             router.back();
-        } else router.push("/");
+        } else {
+            router.push('/');
+        }
     };
+
 
     return (
         <Button
