@@ -57,12 +57,15 @@ export default function UserDropdown() {
         asChild
         className="border-box max-w-48 cursor-pointer px-2"
       >
-        <Button variant="ghost" className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 p-0 pr-2 pl-1"
+        >
           {avatarUrl ? (
             <Image
               src={`${avatarUrl}?v=${Date.now()}`}
-              width={24}
-              height={24}
+              width={30}
+              height={30}
               alt="Avatar"
               className="aspect-square rounded-sm object-cover"
               loading="eager"
@@ -85,15 +88,21 @@ export default function UserDropdown() {
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => router.push("/settings")}
+          onClick={() => router.push("/saved-jobs")}
         >
-          Settings
+          Saved Jobs
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => router.push("/saved-offers")}
+          onClick={() => router.push("/applied-jobs")}
         >
-          Saved Offers
+          Applied Jobs
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => router.push("/settings")}
+        >
+          Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

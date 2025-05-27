@@ -93,7 +93,6 @@ export default function RegisterForm() {
         });
         router.push("/login");
       }
-
     } catch (error: any) {
       setLoading(false);
       toast.error(`Sign up failed: ${error.message}`);

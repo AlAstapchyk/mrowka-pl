@@ -75,9 +75,9 @@ export function useJobDataFetch() {
     params.sortDirection,
     params.minSalary,
     // Convert arrays to strings for dependency comparison
-    JSON.stringify(params.jobLevel),
-    JSON.stringify(params.workingMode),
-    JSON.stringify(params.employmentType),
+    params.jobLevel?.join(","),
+    params.workingMode?.join(","),
+    params.employmentType?.join(","),
   ]);
 
   // Manual refetch function

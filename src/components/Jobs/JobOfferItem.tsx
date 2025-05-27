@@ -1,5 +1,10 @@
-import { FilteredJobOffer } from "@/db/queries";
-import { EMPLOYMENT_TYPES, getLabelById, JOB_LEVELS, WORKING_MODES } from "@/mapping";
+import { FilteredJobOffer } from "@/db/queries/job-offers";
+import {
+  EMPLOYMENT_TYPES,
+  getLabelById,
+  JOB_LEVELS,
+  WORKING_MODES,
+} from "@/mapping";
 import { Briefcase, Clock, DollarSign, Layers } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -11,32 +16,37 @@ const JobOfferItem = ({ jobOffer }: { jobOffer: FilteredJobOffer }) => {
     formattedSalary = `${jobOffer.minSalary.toLocaleString("pl-PL")} - ${jobOffer.maxSalary.toLocaleString("pl-PL")} ${jobOffer.currency}`;
 
   return (
-    <Link href={`/jobs/view/${jobOffer.id}`} className="flex flex-col rounded-xl border-[1px] border-gray-700 p-4 hover:bg-gray-100 transition-colors">
-      <span className="font-semibold text-lg">{jobOffer.title}</span>
+    <Link
+      href={`/jobs/view/${jobOffer.id}`}
+      className="flex flex-col rounded-xl border-[1px] border-gray-700 p-4 transition-colors hover:bg-gray-100"
+    >
+      <span className="text-lg font-semibold">{jobOffer.title}</span>
 
-      <div className="mt-2 flex gap-2 items-center">
-        <DollarSign className="w-4 h-4" />
-        <span className="text-sm font-medium text-green-500">{formattedSalary}</span>
+      <div className="mt-2 flex items-center gap-2">
+        <DollarSign className="h-4 w-4" />
+        <span className="text-sm font-medium text-green-500">
+          {formattedSalary}
+        </span>
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-2">
-        <div className="px-2 flex items-center gap-1 py-1 text-xs rounded-full bg-gray-700 text-gray-200">
-          <Briefcase className="w-3 h-3" />
+      <div className="mt-2 flex flex-wrap gap-2">
+        <div className="flex items-center gap-1 rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-200">
+          <Briefcase className="h-3 w-3" />
           <span>{getLabelById(EMPLOYMENT_TYPES, jobOffer.employmentType)}</span>
         </div>
 
-        <div className="px-2 flex items-center gap-1 py-1 text-xs rounded-full bg-gray-700 text-gray-200">
-          <Layers className="w-3 h-3" />
+        <div className="flex items-center gap-1 rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-200">
+          <Layers className="h-3 w-3" />
           <span>{getLabelById(JOB_LEVELS, jobOffer.jobLevel)}</span>
         </div>
 
-        <div className="px-2 flex items-center gap-1 py-1 text-xs rounded-full bg-gray-700 text-gray-200">
-          <Clock className="w-3 h-3" />
+        <div className="flex items-center gap-1 rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-200">
+          <Clock className="h-3 w-3" />
           <span>{getLabelById(WORKING_MODES, jobOffer.workingMode)}</span>
         </div>
       </div>
 
-      <div className="flex gap-3 pt-3 mt-2 border-t border-gray-700">
+      <div className="mt-2 flex gap-3 border-t border-gray-700 pt-3">
         <img
           width={48}
           height={48}

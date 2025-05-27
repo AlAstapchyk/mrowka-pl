@@ -1,6 +1,11 @@
 import ChangePasswordButton from "@/components/Settings/ChangePasswordButton";
 import DeleteAccountButton from "@/components/Settings/DeleteAccountButton";
+import { Metadata } from "next";
 import React from "react";
+
+export const metadata: Metadata = {
+  title: "Settings | Mrowka.pl",
+};
 
 const page = () => {
   return (

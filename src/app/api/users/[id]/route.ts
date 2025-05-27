@@ -1,6 +1,6 @@
 "use server";
+import { getUserById, updateUser } from "@/db/queries/users";
 import { NextRequest, NextResponse } from "next/server";
-import { getUserById, updateUser } from "@/db/queries";
 
 export async function GET(
   req: NextRequest,

@@ -1,5 +1,5 @@
+import { getUsers } from "@/db/queries/users";
 import { NextResponse } from "next/server"; // Importing the Next.js response helper
-import { getUsers } from "@/db/queries";
 
 // The GET handler for this API route
 export async function GET() {

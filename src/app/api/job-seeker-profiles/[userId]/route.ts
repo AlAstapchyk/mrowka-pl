@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import {
   getJobSeekerProfileByUserId,
   upsertJobSeekerProfile,
-} from "@/db/queries";
+} from "@/db/queries/job-seeker-profiles";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,

@@ -89,6 +89,7 @@ export const jobOffers = pgTable("job_offers", {
   postedBy: uuid("posted_by").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
 export const jobApplications = pgTable("job_applications", {
   id: uuid("id").primaryKey().defaultRandom(),
   jobId: uuid("job_id")
@@ -100,6 +101,13 @@ export const jobApplications = pgTable("job_applications", {
   status: applicationStatusEnum("status").default("pending").notNull(),
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
   coverLetter: text("cover_letter").notNull(),
+});
+
+export const savedJobs = pgTable("saved_jobs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  jobId: uuid("job_id").references(() => jobOffers.id, { onDelete: "cascade" }),
+  savedAt: timestamp("saved_at").defaultNow(),
 });
 
 export type EmploymentType = (typeof employmentType)["enumValues"][number];

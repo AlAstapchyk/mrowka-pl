@@ -44,7 +44,6 @@ export default function ProfilePage() {
     },
   });
 
-
   useEffect(() => {
     if (!user || hasFetched.current) return;
 
@@ -53,26 +52,34 @@ export default function ProfilePage() {
     const fetchData = async () => {
       let baseUserData, jobsSeekerProfileData;
       try {
-        console.log("Fetching user data from:", `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`);
+        console.log(
+          "Fetching user data from:",
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`,
+        );
         const userResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`,
         );
 
         baseUserData = userResponse.data;
 
-        console.log("Fetching job seeker profile from:", `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`);
+        console.log(
+          "Fetching job seeker profile from:",
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`,
+        );
 
         if (baseUserData.role === "job_seeker") {
           try {
             const seekerRes = await axios.get(
-              `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`
+              `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`,
             );
             seekerRes.data.skills = seekerRes.data.skills.join(", ");
             jobsSeekerProfileData = seekerRes.data;
           } catch (error: any) {
             if (error.status === 404)
-              console.warn("No job seeker profile found. (Likely first time login)");
-            else console.error(error)
+              console.warn(
+                "No job seeker profile found. (Likely first time login)",
+              );
+            else console.error(error);
           }
         }
         // else if (baseUserData.role === "recruiter") {
@@ -85,7 +92,7 @@ export default function ProfilePage() {
         //   }));
         // }
       } catch (error: any) {
-        if (error.status === 400) console.error(error.message)
+        if (error.status === 400) console.error(error.message);
       } finally {
         setUserData({
           ...baseUserData,

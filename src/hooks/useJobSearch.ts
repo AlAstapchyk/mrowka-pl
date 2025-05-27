@@ -11,7 +11,6 @@ export function useJobSearch() {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  // Parse current search params from URL
   const currentParams: JobSearchParams = {
     query: searchParams.get("query") || "",
     location: searchParams.get("location") || "",
@@ -30,10 +29,9 @@ export function useJobSearch() {
   };
 
   const updateSearchParams = useCallback(
-    (newParams: Partial<JobSearchParams>) => {
+    (newParams: Partial<JobSearchParams>, newPathname: string = pathname) => {
       const params = new URLSearchParams(searchParams.toString());
 
-      // Handle regular string/number parameters
       Object.entries(newParams).forEach(([key, value]) => {
         if (value === undefined || value === null || value === "") {
           params.delete(key);
@@ -42,7 +40,6 @@ export function useJobSearch() {
         }
       });
 
-      // Handle array parameters
       if (newParams.jobLevel) {
         params.delete("jobLevel");
         newParams.jobLevel.forEach((level: string) =>
@@ -64,17 +61,15 @@ export function useJobSearch() {
         );
       }
 
-      // Reset to page 1 if any param (except `page`) is changed
       const isChangingAnythingButPage = Object.keys(newParams).some(
         (key) => key !== "page",
       );
-
       if (isChangingAnythingButPage) {
         params.set("page", "1");
       }
 
       startTransition(() => {
-        router.push(`${pathname}?${params.toString()}`);
+        router.push(`${newPathname}?${params.toString()}`);
       });
     },
     [searchParams, router, pathname],

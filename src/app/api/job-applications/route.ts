@@ -1,5 +1,5 @@
+import { applyForJob } from "@/db/queries/job-applications";
 import { NextResponse } from "next/server";
-import { applyForJob } from "@/db/queries";
 
 export async function POST(req: Request) {
   try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFilteredJobOffers } from "@/db/queries";
 import { JobLevel, EmploymentType, WorkingMode } from "@/db/schema";
 import { JobSearchParams } from "@/types";
+import { getFilteredJobOffers } from "@/db/queries/job-offers";
 
 export async function GET(request: NextRequest) {
   try {
