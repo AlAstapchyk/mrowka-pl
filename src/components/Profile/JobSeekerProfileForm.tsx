@@ -31,20 +31,6 @@ export const JobSeekerProfileForm = () => {
 
       <FormField
         control={control}
-        name="resumeLink"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Resume Link</FormLabel>
-            <FormControl>
-              <Input placeholder="https://..." {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
         name="skills"
         render={({ field }) => (
           <FormItem>

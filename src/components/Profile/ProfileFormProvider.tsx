@@ -12,11 +12,11 @@ import { JobSeekerProfileForm } from "./JobSeekerProfileForm";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AvatarUploader from "../AvatarUploader";
 import { createClient } from "@/utils/supabase/client";
+import CVUploader from "../CVUploader";
 
 const profileSchema = z.object({
   fullName: z.string().min(1, "Required"),
   phoneNumber: z.string(),
-  resumeLink: z.string(),
   linkedInUrl: z.string(),
   skills: z.string(),
   education: z.string(),
@@ -36,7 +36,6 @@ export default function ProfilePage() {
     defaultValues: {
       fullName: "",
       phoneNumber: "",
-      resumeLink: "",
       skills: "",
       education: "",
       locationPreference: "",
@@ -109,7 +108,6 @@ export default function ProfilePage() {
     form.reset({
       fullName: userData?.fullName || "",
       phoneNumber: userData?.phoneNumber || "",
-      resumeLink: userData?.resumeLink || "",
       skills: userData?.skills || "",
       education: userData?.education || "",
       locationPreference: userData?.locationPreference || "",
@@ -184,8 +182,10 @@ export default function ProfilePage() {
 
           <hr className="my-6" />
 
+
           {userData.role === "job_seeker" && (
             <>
+              {user ? <CVUploader userId={user.id} /> : ""}
               <JobSeekerProfileForm />
             </>
           )}
