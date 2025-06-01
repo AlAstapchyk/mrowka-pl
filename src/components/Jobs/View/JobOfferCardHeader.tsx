@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Button } from "../../ui/button";
 import { ArrowRight } from "lucide-react";
@@ -17,19 +15,20 @@ const JobOfferCardHeader = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           {jobOffer.logoUrl && (
-            <div className="flex h-16 w-16 items-center justify-center">
+            <Link href={`/companies/view/${jobOffer.companyId}`} className="flex h-16 w-16 items-center justify-center cursor-pointer">
               <img
                 src={jobOffer.logoUrl ?? "Company's logo"}
                 alt={`${jobOffer.companyName} logo`}
                 className="max-h-full max-w-full"
               />
-            </div>
+            </Link>
           )}
           <div>
             <h1 className="text-2xl font-semibold">{jobOffer.title}</h1>
-            <p className="font-medium text-gray-700">{jobOffer.companyName}</p>
+            <Link href={`/companies/view/${jobOffer.companyId}`} className="font-medium text-gray-700 ">{jobOffer.companyName}</Link>
           </div>
         </div>
+
         <Button
           asChild
           variant="default"

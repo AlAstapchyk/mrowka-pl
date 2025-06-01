@@ -16,16 +16,19 @@ import { useEffect, useState } from "react";
 import { getAvatarUrl } from "@/utils/supabase/storage-client";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
+import axios from "axios";
 
 export default function UserDropdown() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [role, setRole] = useState<string>();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
 
     getAvatarUrl(user.id).then((url) => setAvatarUrl(url));
+    axios.get(`/api/users/${user.id}/role`).then((res) => setRole(res.data.role));
   }, [user]);
 
   if (authLoading) {
@@ -86,18 +89,30 @@ export default function UserDropdown() {
         >
           My Profile
         </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => router.push("/saved-jobs")}
-        >
-          Saved Jobs
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => router.push("/applied-jobs")}
-        >
-          Applied Jobs
-        </DropdownMenuItem>
+        {role === "job_seeker" ? (<>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => router.push("/saved-jobs")}
+          >
+            Saved Jobs
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => router.push("/applied-jobs")}
+          >
+            Applied Jobs
+          </DropdownMenuItem>
+        </>) : <></>}
+
+        {role === "recruiter" ? (<>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => router.push("/companies")}
+          >
+            Companies
+          </DropdownMenuItem>
+        </>) : <></>}
+
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => router.push("/settings")}

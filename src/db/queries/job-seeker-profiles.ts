@@ -1,16 +1,15 @@
 import { eq } from "drizzle-orm";
 import db from "..";
-import { jobSeekerProfiles } from "../schema";
+import { JobSeekerProfile, jobSeekerProfiles } from "../schema";
 
-export async function upsertJobSeekerProfile(userId: string, profileData: any) {
+export async function upsertJobSeekerProfile(profileData: JobSeekerProfile) {
   try {
     const upsertedProfile = await db
       .insert(jobSeekerProfiles)
       .values([
         {
-          userId,
+          userId: profileData.userId,
           phoneNumber: profileData?.phoneNumber,
-          resumeLink: profileData?.resumeLink,
           skills: profileData?.skills,
           education: profileData?.education,
           locationPreference: profileData?.locationPreference,
@@ -21,7 +20,6 @@ export async function upsertJobSeekerProfile(userId: string, profileData: any) {
         target: jobSeekerProfiles.userId,
         set: {
           phoneNumber: profileData?.phoneNumber,
-          resumeLink: profileData?.resumeLink,
           skills: profileData?.skills,
           education: profileData?.education,
           locationPreference: profileData?.locationPreference,

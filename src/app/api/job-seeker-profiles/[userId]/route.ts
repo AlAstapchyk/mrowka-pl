@@ -42,10 +42,10 @@ export async function PUT(
   console.log(jobSeekerProfileData);
 
   try {
-    const updatedUser = await upsertJobSeekerProfile(
+    const updatedUser = await upsertJobSeekerProfile({
       userId,
-      jobSeekerProfileData,
-    );
+      ...jobSeekerProfileData,
+    });
 
     if (!updatedUser) {
       return NextResponse.json(

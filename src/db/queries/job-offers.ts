@@ -13,6 +13,7 @@ export interface FilteredJobOffer {
   employmentType: string;
   jobLevel: string;
   workingMode: string;
+  companyId: string | null;
   companyName: string | null;
   logoUrl: string | null;
 }
@@ -118,8 +119,9 @@ export async function getFilteredJobOffers(
       employmentType: jobOffers.employmentType,
       jobLevel: jobOffers.jobLevel,
       workingMode: jobOffers.workingMode,
+      companyId: companies.id,
       companyName: companies.name,
-      logoUrl: companies.logo_url,
+      logoUrl: companies.logoUrl,
     })
     .from(jobOffers)
     .leftJoin(companies, eq(companies.id, jobOffers.companyId));
@@ -147,6 +149,23 @@ export async function getFilteredJobOffers(
   };
 }
 
+export async function getJobOfferTitleById(offerId: string) {
+  try {
+    const jobOffer = await db
+      .select({
+        title: jobOffers.title,
+      })
+      .from(jobOffers)
+      .where(eq(jobOffers.id, offerId))
+      .limit(1);
+
+    return jobOffer?.[0]?.title ?? null;
+  } catch (error) {
+    console.error("Error fetching job offer by ID:", error);
+    throw new Error("Error fetching job offer");
+  }
+}
+
 export async function getJobOfferById(offerId: string) {
   try {
     const jobOffer = await db
@@ -161,8 +180,9 @@ export async function getJobOfferById(offerId: string) {
         jobLevel: jobOffers.jobLevel,
         workingMode: jobOffers.workingMode,
         description: jobOffers.description,
+        companyId: companies.id,
         companyName: companies.name,
-        logoUrl: companies.logo_url,
+        logoUrl: companies.logoUrl,
       })
       .from(jobOffers)
       .leftJoin(companies, eq(companies.id, jobOffers.companyId))

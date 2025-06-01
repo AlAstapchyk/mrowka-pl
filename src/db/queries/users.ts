@@ -14,12 +14,7 @@ export async function getUsers() {
 
 export async function getUserById(id: string) {
   try {
-    const user = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1)
-      .execute();
+    const user = await db.select().from(users).where(eq(users.id, id)).limit(1);
 
     if (!user || user.length === 0) {
       console.log(`User with id ${id} not found.`);
@@ -33,6 +28,29 @@ export async function getUserById(id: string) {
       error instanceof Error ? error.message : error,
     );
     throw new Error("Error fetching user");
+  }
+}
+
+export async function getUserRoleById(id: string) {
+  try {
+    const result = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+
+    if (!result || result.length === 0) {
+      console.log(`User with id ${id} not found.`);
+      return null;
+    }
+
+    return result[0].role;
+  } catch (error) {
+    console.error(
+      "Error fetching user role:",
+      error instanceof Error ? error.message : error,
+    );
+    throw new Error("Error fetching user role");
   }
 }
 

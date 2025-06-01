@@ -1,5 +1,5 @@
 import HeaderSearchForm from "@/components/Home/HeaderSearchForm";
-import OffersOfTheDay from "@/components/Home/OffersOfTheDay";
+import RecentJobs from "@/components/Home/RecentJobs";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -31,7 +31,7 @@ export default function Home() {
 
         </div>
       </div>
-      <OffersOfTheDay />
+      <RecentJobs />
     </main>
   );
 }

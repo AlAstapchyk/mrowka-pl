@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ jobId: string }> },
 ) {
   const jobId = (await params).jobId;
@@ -26,7 +26,7 @@ export async function POST(
 }
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ jobId: string }> },
 ) {
   const jobId = (await params).jobId;

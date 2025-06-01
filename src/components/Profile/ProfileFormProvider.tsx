@@ -13,6 +13,7 @@ import LoadingSpinner from "../ui/LoadingSpinner";
 import AvatarUploader from "../AvatarUploader";
 import { createClient } from "@/utils/supabase/client";
 import CVUploader from "../CVUploader";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   fullName: z.string().min(1, "Required"),
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const [loadingForm, setLoadingForm] = useState<boolean>(true);
   const hasFetched = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -51,20 +53,11 @@ export default function ProfilePage() {
     const fetchData = async () => {
       let baseUserData, jobsSeekerProfileData;
       try {
-        console.log(
-          "Fetching user data from:",
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`,
-        );
         const userResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${user.id}`,
         );
 
         baseUserData = userResponse.data;
-
-        console.log(
-          "Fetching job seeker profile from:",
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${user.id}`,
-        );
 
         if (baseUserData.role === "job_seeker") {
           try {
@@ -115,50 +108,50 @@ export default function ProfilePage() {
     });
   }, [userData]);
 
-  const onSubmit = (data: ProfileFormData) => {
-    const parsedSkills = data.skills
-      .split(",")
-      .map((skill: string) => skill.trim())
-      .filter((skill: string) => skill.length > 0);
+  const onSubmit = async (data: ProfileFormData) => {
+    setIsSubmitting(true);
+    try {
+      const parsedSkills = data?.skills
+        .split(",")
+        .map((skill: string) => skill.trim())
+        .filter((skill: string) => skill.length > 0);
 
-    const updatedData = {
-      ...data,
-      skills: parsedSkills,
-    };
+      const updatedData = {
+        ...data,
+        skills: parsedSkills,
+      };
 
-    console.log("Updated Data:", updatedData);
+      const supabase = createClient();
 
-    axios
-      .put(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${userData.id}`,
-        updatedData,
-      )
-      .then((response) => {
-        console.log("User profile updated successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error updating user profile:", error);
+      const requests = [
+        axios.put(`/api/users/${userData.id}`, updatedData),
+      ];
+
+      if (userData.role !== "recruter")
+        requests.push(axios.put(`/api/job-seeker-profiles/${userData.id}`, updatedData));
+
+      const responses = await Promise.all(requests);
+
+      const allSuccessful = responses.every(
+        (res) => res.status >= 200 && res.status < 300
+      );
+
+      if (!allSuccessful) throw new Error("One or more updates failed.");
+
+      const { error: supabaseError } = await supabase.auth.updateUser({
+        data: {
+          full_name: updatedData.fullName,
+        },
       });
 
-    axios
-      .put(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job-seeker-profiles/${userData.id}`,
-        updatedData,
-      )
-      .then((response) => {
-        console.log("Job seeker profile updated successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error updating job seeker profile:", error);
-      });
+      if (supabaseError) throw new Error(`Supabase update failed: ${supabaseError.message}`);
 
-    const supabase = createClient();
-
-    supabase.auth.updateUser({
-      data: {
-        full_name: updatedData.fullName,
-      },
-    });
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loadingForm) return <LoadingSpinner />;
@@ -190,8 +183,8 @@ export default function ProfilePage() {
             </>
           )}
 
-          <Button type="submit" className="w-full">
-            Save Profile
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Saving Profile..." : "Save Profile"}
           </Button>
         </form>
       </FormProvider>

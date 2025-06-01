@@ -33,11 +33,24 @@ export const workingMode = pgEnum("working_mode", [
   "onsite",
 ]);
 
-export const applicationStatusEnum = pgEnum("application_status", [
+export const applicationStatus = pgEnum("application_status", [
   "pending",
   "reviewed",
   "accepted",
   "rejected",
+]);
+
+export const companySizeEnum = pgEnum("company_size", [
+  "micro",
+  "small",
+  "medium",
+  "large",
+  "enterprise",
+]);
+
+export const companyMemberRoleEnum = pgEnum("company_member_role", [
+  "admin",
+  "recruiter",
 ]);
 
 export const users = pgTable("users", {
@@ -64,14 +77,36 @@ export const jobSeekerProfiles = pgTable("job_seeker_profiles", {
 });
 
 export const companies = pgTable("companies", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id").primaryKey().defaultRandom().notNull(),
   name: text("name").notNull().unique(),
   description: text("description"),
-  logo_url: text("logo_url"),
+  logoUrl: text("logo_url"),
   createdBy: uuid("created_by")
     .notNull()
     .references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const companyProfiles = pgTable("company_profiles", {
+  companyId: uuid("company_id")
+    .primaryKey()
+    .references(() => companies.id, { onDelete: "cascade" }),
+  logoUrl: text("logo_url"),
+  industry: text("industry"),
+  website: text("website"),
+  companySize: companySizeEnum("company_size"),
+  companyDescription: text("company_description"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const companyMembers = pgTable("company_members", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  companyId: uuid("company_id").references(() => companies.id, {
+    onDelete: "cascade",
+  }),
+  role: companyMemberRoleEnum("role").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow(),
 });
 
 export const jobOffers = pgTable("job_offers", {
@@ -98,7 +133,7 @@ export const jobApplications = pgTable("job_applications", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  status: applicationStatusEnum("status").default("pending").notNull(),
+  status: applicationStatus("status").default("pending").notNull(),
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
   coverLetter: text("cover_letter").notNull(),
 });
@@ -114,10 +149,16 @@ export type EmploymentType = (typeof employmentType)["enumValues"][number];
 export type JobLevel = (typeof jobLevel)["enumValues"][number];
 export type WorkingMode = (typeof workingMode)["enumValues"][number];
 export type ApplicationStatus =
-  (typeof applicationStatusEnum)["enumValues"][number];
+  (typeof applicationStatus)["enumValues"][number];
+export type CompanySize = (typeof companySizeEnum)["enumValues"][number];
+export type CompanyMemberRole =
+  (typeof companyMemberRoleEnum)["enumValues"][number];
 
 export type User = InferModel<typeof users>;
 export type JobSeekerProfile = InferModel<typeof jobSeekerProfiles>;
 export type Company = InferModel<typeof companies>;
+export type CompanyProfile = InferModel<typeof companyProfiles>;
+export type CompanyMember = InferModel<typeof companyMembers>;
 export type JobOffer = InferModel<typeof jobOffers>;
 export type JobApplication = InferModel<typeof jobApplications>;
+export type SavedJob = InferModel<typeof savedJobs>;
