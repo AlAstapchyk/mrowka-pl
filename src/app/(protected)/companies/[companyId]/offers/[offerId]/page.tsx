@@ -14,8 +14,8 @@ const page = async ({
     return (
         <div className="container flex flex-col items-center justify-center gap-4 m-auto">
             <Button className="w-full max-w-xl flex justify-center" variant={"outline"} asChild>
-                <Link href={`/companies/${companyId}/offers/${offerId}/edit`}>
-                    Edit
+                <Link href={`/companies/${companyId}/offers/${offerId}/update`}>
+                    Update
                 </Link>
             </Button>
 

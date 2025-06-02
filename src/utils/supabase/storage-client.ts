@@ -30,3 +30,31 @@ export const getAvatarUrl = async (userId: string): Promise<string | null> => {
     return null;
   }
 };
+
+export const getCompanyLogoUrl = async (
+  companyId: string,
+): Promise<string | null> => {
+  const supabase = createClient();
+  try {
+    const { data, error } = await supabase.storage
+      .from("company-logos")
+      .list(`${companyId}/`);
+
+    if (error) {
+      console.error("Error listing company logo files:", error.message);
+      return null;
+    }
+
+    const file = data?.[0];
+    if (!file) return null;
+
+    const { data: publicUrlData } = supabase.storage
+      .from("company-logos")
+      .getPublicUrl(`${companyId}/${file.name}`);
+
+    return publicUrlData?.publicUrl || null;
+  } catch (err) {
+    console.error("Error fetching company logo URL:", err);
+    return null;
+  }
+};

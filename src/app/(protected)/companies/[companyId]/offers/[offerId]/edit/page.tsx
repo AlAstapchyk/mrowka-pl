@@ -1,7 +1,7 @@
 import React from "react";
 
 const page = () => {
-    return <div>Edit offer Id</div>;
+    return <div>Update offer Id</div>;
 };
 
 export default page;

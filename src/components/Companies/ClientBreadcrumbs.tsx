@@ -37,11 +37,11 @@ const breadcrumbMap = new Map<string, RouteSegment>([
         { segment: "companies", label: "Companies", href: () => `/companies` },
     ],
     [
-        "edit",
+        "update",
         {
-            segment: "edit",
-            label: "Edit Company",
-            href: (companyId) => `/companies/${companyId}/edit`,
+            segment: "update",
+            label: "Update Company",
+            href: (companyId) => `/companies/${companyId}/update`,
         },
     ],
     [
@@ -175,15 +175,15 @@ export default function ClientBreadcrumbs({
                                 }
                             }
 
-                            if (segment === "edit") {
+                            if (segment === "update") {
                                 const prev = dynamicPathSegments[idx - 1];
                                 const prev2 = dynamicPathSegments[idx - 2];
                                 if (isUuid(prev) && prev2 === "offers") {
                                     return {
-                                        segment: "edit",
-                                        label: "Edit Offer",
+                                        segment: "update",
+                                        label: "Update Offer",
                                         href: (currentCompanyId: string) =>
-                                            `/companies/${currentCompanyId}/offers/${prev}/edit`,
+                                            `/companies/${currentCompanyId}/offers/${prev}/update`,
                                     };
                                 }
                             }
