@@ -66,7 +66,7 @@ export async function getUserCompanies(userId: string) {
           companyDescription: companyProfiles.companyDescription,
           updatedAt: companyProfiles.updatedAt,
         },
-        userRole: companyMembers.role,
+        memberRole: companyMembers.role,
       })
       .from(companyMembers)
       .innerJoin(companies, eq(companyMembers.companyId, companies.id))

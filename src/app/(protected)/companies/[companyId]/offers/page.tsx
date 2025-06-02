@@ -1,5 +1,5 @@
 import NotFound from "@/app/not-found";
-import JobOfferItemManagement from "@/components/Jobs/JobOfferItem copy";
+import JobOfferItemManagement from "@/components/Jobs/JobOfferItemManagement";
 import { Button } from "@/components/ui/button";
 import { getCompanyById } from "@/db/queries/companies";
 import { getFilteredJobOffers } from "@/db/queries/job-offers";
