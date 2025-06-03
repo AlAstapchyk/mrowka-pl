@@ -49,18 +49,12 @@ const Page = async ({ params }: PageProps) => {
   const supabase = await createClient();
   const user = (await supabase.auth.getUser()).data.user;
 
-  if (user) {
-    const userData = await getUserById(user.id);
-
-    if (userData?.role === "recruiter")
-      return (
-        <h1 className="m-auto flex text-center font-serif text-3xl font-semibold">
-          You are recruiter! What are you looking for?
-        </h1>
-      );
-  }
-
   const alreadyApplied = user ? await hasUserApplied(user.id, id) : false;
+
+  let role;
+
+  if (user)
+    role = (await getUserById(user.id))?.role;
 
   return (
     <div className="container mx-auto mt-8 flex max-w-3xl flex-col px-4">
@@ -73,6 +67,7 @@ const Page = async ({ params }: PageProps) => {
         <JobOfferCardHeader
           jobOffer={jobOffer}
           alreadyApplied={alreadyApplied}
+          role={role}
         />
 
         <div className="space-y-6 px-6 py-6 max-sm:px-0">
@@ -122,7 +117,7 @@ const Page = async ({ params }: PageProps) => {
           </div>
         </div>
 
-        <JobOfferCardFooter jobId={id} alreadyApplied={alreadyApplied} />
+        <JobOfferCardFooter jobId={id} alreadyApplied={alreadyApplied} role={role} />
       </div>
 
       <p className="my-4 text-right text-sm text-gray-500">Job ID: {id}</p>

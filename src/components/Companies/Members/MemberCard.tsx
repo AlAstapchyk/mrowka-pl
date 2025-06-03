@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { CompanyMemberRole } from "@/db/schema";
 import axios from "axios";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { CompanyMemberData } from "@/db/queries/company-members";
 
 export default function MemberCard({ member }: { member: CompanyMemberData }) {
@@ -66,7 +66,7 @@ export default function MemberCard({ member }: { member: CompanyMemberData }) {
                 </Select>
                 <Button
                     onClick={handleDelete}
-                    disabled={isDeleting}
+                    disabled={isDeleting || !!member.createdBy}
                     variant={"destructive"}
                 >
                     {isDeleting ? "Removing..." : "X"}

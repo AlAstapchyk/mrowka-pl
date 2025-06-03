@@ -68,7 +68,6 @@ export const jobSeekerProfiles = pgTable("job_seeker_profiles", {
       onDelete: "cascade",
     }),
   phoneNumber: text("phone_number"),
-  resumeLink: text("resume_link"),
   skills: text("skills").array(),
   education: text("education"),
   locationPreference: text("location_preference"),
@@ -91,7 +90,6 @@ export const companyProfiles = pgTable("company_profiles", {
   companyId: uuid("company_id")
     .primaryKey()
     .references(() => companies.id, { onDelete: "cascade" }),
-  logoUrl: text("logo_url"),
   industry: text("industry"),
   website: text("website"),
   companySize: companySizeEnum("company_size"),

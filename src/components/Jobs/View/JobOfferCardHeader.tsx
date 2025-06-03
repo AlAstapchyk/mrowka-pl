@@ -6,9 +6,11 @@ import Link from "next/link";
 const JobOfferCardHeader = ({
   jobOffer,
   alreadyApplied,
+  role
 }: {
   jobOffer: any;
   alreadyApplied: boolean;
+  role?: string;
 }) => {
   return (
     <div className="border-b border-black pb-6 sm:px-6">
@@ -33,6 +35,7 @@ const JobOfferCardHeader = ({
           asChild
           variant="default"
           className="ml-auto bg-black text-white hover:bg-gray-800 max-sm:hidden"
+          disabled={role === "recruiter"}
         >
           {alreadyApplied ? (
             <div

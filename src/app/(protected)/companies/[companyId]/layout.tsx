@@ -38,7 +38,7 @@ const Layout = async ({ children, params }: { children: React.ReactNode, params:
                     </div>
                 </header>
 
-                <main className="container mx-auto mt-4">
+                <main className="container mx-auto my-4">
                     {children}
                 </main>
             </div>

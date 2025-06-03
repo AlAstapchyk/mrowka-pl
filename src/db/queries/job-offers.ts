@@ -1,5 +1,11 @@
 import { and, asc, desc, eq, gte, ilike, or } from "drizzle-orm";
-import { companies, jobApplications, jobOffers, savedJobs } from "../schema";
+import {
+  companies,
+  jobApplications,
+  JobOffer,
+  jobOffers,
+  savedJobs,
+} from "../schema";
 import { JobSearchParams } from "@/types";
 import db from "..";
 
@@ -23,6 +29,7 @@ export async function getFilteredJobOffers(
     userId?: string;
     isSaved?: boolean;
     isApplied?: boolean;
+    companyId?: string;
   } = {},
 ) {
   const {
@@ -38,6 +45,7 @@ export async function getFilteredJobOffers(
     userId,
     isSaved = false,
     isApplied = false,
+    companyId,
   } = params;
 
   const offset = (page - 1) * pageSize;
@@ -82,6 +90,10 @@ export async function getFilteredJobOffers(
 
   if (isApplied && userId) {
     filters.push(eq(jobApplications.userId, userId));
+  }
+
+  if (companyId) {
+    filters.push(eq(jobOffers.companyId, companyId));
   }
 
   const whereClause = filters.length ? and(...filters) : undefined;
@@ -193,5 +205,50 @@ export async function getJobOfferById(offerId: string) {
   } catch (error) {
     console.error("Error fetching job offer by ID:", error);
     throw new Error("Error fetching job offer");
+  }
+}
+
+export async function createJobOfferByCompanyId(
+  data: JobOffer & { companyId: string; postedBy: string },
+) {
+  try {
+    const [existingTitle] = await db
+      .select({ title: jobOffers.title })
+      .from(jobOffers)
+      .where(
+        and(
+          eq(jobOffers.companyId, data.companyId),
+          eq(jobOffers.title, data.title.trim()),
+        ),
+      )
+      .catch();
+
+    if (existingTitle) {
+      throw new Error(
+        "A job offer with this title already exists for the company.",
+      );
+    }
+
+    const inserted = await db
+      .insert(jobOffers)
+      .values({
+        title: data.title.trim(),
+        minSalary: data.minSalary,
+        maxSalary: data.maxSalary,
+        currency: data.currency,
+        location: data.location,
+        employmentType: data.employmentType,
+        jobLevel: data.jobLevel,
+        workingMode: data.workingMode,
+        description: data.description,
+        companyId: data.companyId,
+        postedBy: data.postedBy,
+      })
+      .returning();
+
+    return inserted[0] ?? null;
+  } catch (error: any) {
+    console.error("Error creating job offer:", error);
+    throw new Error(error.message || "Error creating job offer");
   }
 }

@@ -39,7 +39,7 @@ export function useJobDataFetch() {
         }
       });
 
-      const response = await fetch(`/api/jobs?${queryParams.toString()}`);
+      const response = await fetch(`/api/job-offers?${queryParams.toString()}`);
 
       if (!response.ok) {
         throw new Error(`Error fetching job data: ${response.statusText}`);

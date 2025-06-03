@@ -59,7 +59,6 @@ export async function getUserCompanies(userId: string) {
         },
         companyProfile: {
           companyId: companyProfiles.companyId,
-          logoUrl: companyProfiles.logoUrl,
           industry: companyProfiles.industry,
           website: companyProfiles.website,
           companySize: companyProfiles.companySize,

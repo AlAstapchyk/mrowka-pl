@@ -24,7 +24,6 @@ export async function updateCompanyProfile(
   const [updated] = await db
     .update(companyProfiles)
     .set({
-      logoUrl: data.logoUrl ?? null,
       industry: data.industry ?? null,
       website: data.website ?? null,
       companySize: data.companySize ?? null,
@@ -43,7 +42,6 @@ export async function createCompanyProfile(
     .insert(companyProfiles)
     .values({
       companyId: data.companyId,
-      logoUrl: data?.logoUrl ?? null,
       industry: data.industry ?? null,
       website: data.website ?? null,
       companySize: data.companySize ?? null,

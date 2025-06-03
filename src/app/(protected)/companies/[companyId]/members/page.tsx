@@ -1,6 +1,6 @@
 import React from "react";
 import { getCompanyMembers } from "@/db/queries/company-members";
-import MemberCard from "@/components/Members/MemberCard";
+import MemberCard from "@/components/Companies/Members/MemberCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 

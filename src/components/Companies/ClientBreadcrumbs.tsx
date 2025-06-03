@@ -110,7 +110,7 @@ export default function ClientBreadcrumbs({
         }
         try {
             const res = await axios.get(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/jobs/${jobId}/title`
+                `/api/job-offers/${jobId}/title`
             );
             const title = res.data?.title || "Offer";
             jobTitleCache.set(jobId, title);

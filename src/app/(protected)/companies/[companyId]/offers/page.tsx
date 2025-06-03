@@ -12,7 +12,7 @@ const page = async ({ params }: { params: Promise<{ companyId: string }> }) => {
 
     if (!company) NotFound();
 
-    const { data: jobOffers, count } = await getFilteredJobOffers({});
+    const { data: jobOffers, count } = await getFilteredJobOffers({ companyId });
 
     return (
         <div className="mb-4">

@@ -29,3 +29,9 @@ export const EMPLOYMENT_TYPES = [
   { id: "temporary_employment", label: "Temporary employment" },
   { id: "internship", label: "Internship contract" },
 ];
+
+export const CURRENCIES = [
+  { id: "PLN", label: "PLN" },
+  { id: "USD", label: "USD" },
+  { id: "EUR", label: "EUR" },
+];

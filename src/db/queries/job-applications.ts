@@ -1,6 +1,7 @@
 import { and, asc, gte, lte, desc, eq, ilike, or } from "drizzle-orm";
 import db from "..";
 import {
+  ApplicationStatus,
   jobApplications,
   jobOffers,
   JobSeekerProfile,
@@ -59,7 +60,7 @@ export interface FilteredJobApplication {
   userId: string;
   email: string | null;
   fullName: string | null;
-  status: "pending" | "reviewed" | "accepted" | "rejected";
+  status: ApplicationStatus;
   appliedAt: Date;
   coverLetter: string;
 }
@@ -71,7 +72,7 @@ export interface PaginatedApplications {
 
 export interface ApplicationSearchParams {
   userId?: string;
-  status?: Array<"pending" | "reviewed" | "accepted" | "rejected">;
+  status?: Array<ApplicationStatus>;
   query?: string;
   dateFrom?: Date;
   dateTo?: Date;
@@ -200,7 +201,6 @@ export async function getJobApplicationById(
 
         createdAt: jobSeekerProfiles.createdAt,
         phoneNumber: jobSeekerProfiles.phoneNumber,
-        resumeLink: jobSeekerProfiles.resumeLink,
         skills: jobSeekerProfiles.skills,
         education: jobSeekerProfiles.education,
         locationPreference: jobSeekerProfiles.locationPreference,
@@ -212,8 +212,13 @@ export async function getJobApplicationById(
       .leftJoin(jobSeekerProfiles, eq(jobSeekerProfiles.userId, users.id))
       .where(eq(jobApplications.id, appId));
 
-    if (!row) {
-      return null;
+    if (!row) return null;
+
+    if (row.status === "pending") {
+      await db
+        .update(jobApplications)
+        .set({ status: "reviewed" })
+        .where(eq(jobApplications.id, appId));
     }
 
     return {
@@ -222,12 +227,11 @@ export async function getJobApplicationById(
       userId: row.userId,
       fullName: row.fullName ?? null,
       email: row.email ?? null,
-      status: row.status,
+      status: row.status === "pending" ? "reviewed" : row.status, // reflect new status immediately
       appliedAt: row.appliedAt,
       coverLetter: row.coverLetter,
       createdAt: row.createdAt ?? null,
       phoneNumber: row.phoneNumber ?? null,
-      resumeLink: row.resumeLink ?? null,
       skills: row.skills ?? null,
       education: row.education ?? null,
       locationPreference: row.locationPreference ?? null,
@@ -259,5 +263,26 @@ export async function getApplicantFullNameByApplicationId(
       error,
     );
     throw new Error("Failed to fetch applicant full name");
+  }
+}
+
+export async function changeApplicationStatus(
+  applicationId: string,
+  status: ApplicationStatus,
+) {
+  try {
+    const [application] = await db
+      .update(jobApplications)
+      .set({ status })
+      .where(eq(jobApplications.id, applicationId))
+      .returning();
+
+    return application;
+  } catch (error) {
+    console.error(
+      `Database error: Failed to update status of application ID ${applicationId}:`,
+      error,
+    );
+    throw new Error("Failed to update applicant status");
   }
 }

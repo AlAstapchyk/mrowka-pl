@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JobLevel, EmploymentType, WorkingMode } from "@/db/schema";
 import { JobSearchParams } from "@/types";
-import { getFilteredJobOffers } from "@/db/queries/job-offers";
+import {
+  createJobOfferByCompanyId,
+  getFilteredJobOffers,
+} from "@/db/queries/job-offers";
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,7 +45,6 @@ export async function GET(request: NextRequest) {
       sortDirection: sortDirection as "asc" | "desc",
     };
 
-    // Use the existing getJobOffers function
     const { data, count } = await getFilteredJobOffers(searchParams);
 
     return NextResponse.json({
@@ -56,6 +58,22 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching job offers:", error);
     return NextResponse.json(
       { error: "Failed to fetch job offers" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    const jobOffer = await createJobOfferByCompanyId(body);
+
+    return NextResponse.json(jobOffer, { status: 201 });
+  } catch (error) {
+    console.error("Error creating job offer:", error);
+    return NextResponse.json(
+      { error: "Failed to create job offer" },
       { status: 500 },
     );
   }

@@ -5,9 +5,11 @@ import { ArrowRight } from "lucide-react";
 const JobOfferCardFooter = ({
   jobId,
   alreadyApplied,
+  role
 }: {
   jobId: string;
   alreadyApplied: boolean;
+  role?: string;
 }) => {
   return (
     <div className="flex justify-center border-t border-black pt-6">
@@ -20,6 +22,7 @@ const JobOfferCardFooter = ({
           asChild
           variant="default"
           className="bg-black text-white hover:bg-gray-800"
+          disabled={role === "recruiter"}
         >
           <Link
             href={`/jobs/apply/${jobId}`}
