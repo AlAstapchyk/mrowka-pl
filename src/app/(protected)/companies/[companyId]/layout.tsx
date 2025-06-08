@@ -1,5 +1,6 @@
 import ClientBreadcrumbs from "@/components/Companies/ClientBreadcrumbs";
 import { getCompanyById } from "@/db/queries/companies";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import React from "react";
 
@@ -20,7 +21,7 @@ const Layout = async ({ children, params }: { children: React.ReactNode, params:
                         <div className="flex items-center gap-4 py-3">
                             <div className="flex items-center gap-3">
                                 {company.logoUrl ? (
-                                    <img src={company.logoUrl} alt={`${company.name} logo`} width={32} height={32} className="rounded-md object-contain" />
+                                    <Image src={`${company.logoUrl}?v=${new Date().getTime()}`} alt={`${company.name} logo`} width={32} height={32} className="rounded-md object-contain" />
                                 ) : (
                                     <div className="w-8 h-8 bg-gray-300 rounded-md flex items-center justify-center">
                                         <span className="text-gray-600 text-sm font-medium">{company.name.charAt(0).toUpperCase()}</span>

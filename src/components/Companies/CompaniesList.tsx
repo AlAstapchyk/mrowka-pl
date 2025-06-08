@@ -3,8 +3,8 @@
 import { Building2 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { getCompanyLogoUrl } from "@/utils/supabase/storage-client";
 import { Company } from "@/db/schema";
+import Image from "next/image";
 
 export default function CompaniesListClient({ companies }: { companies: { company: Company; role: string }[] }) {
     const [logos, setLogos] = useState<Record<string, string | undefined>>({});
@@ -15,7 +15,7 @@ export default function CompaniesListClient({ companies }: { companies: { compan
             setIsFetching(true);
             const logoMap: Record<string, string | undefined> = {};
             for (const company of companies) {
-                const logoUrl = await getCompanyLogoUrl(company.company.id);
+                const logoUrl = company.company.logoUrl;
                 logoMap[company.company.id] = logoUrl ?? undefined;
             }
             setLogos(logoMap);
@@ -39,10 +39,10 @@ export default function CompaniesListClient({ companies }: { companies: { compan
                             </div>
                             :
                             logos[item.company.id] ? (
-                                <img
+                                <Image
                                     width={48}
                                     height={48}
-                                    src={logos[item.company.id]}
+                                    src={`${item.company.logoUrl}?v=${new Date().getTime()}`}
                                     alt={`${item.company.name} logo`}
                                     className="h-12 w-12 rounded-xl object-cover"
                                 />

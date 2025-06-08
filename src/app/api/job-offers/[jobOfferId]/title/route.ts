@@ -3,18 +3,18 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ jobOferId: string }> },
+  { params }: { params: Promise<{ jobOfferId: string }> },
 ) {
   try {
-    const { jobOferId } = await params;
+    const { jobOfferId } = await params;
 
-    if (!jobOferId)
+    if (!jobOfferId)
       return NextResponse.json(
         { error: "Offer ID is required" },
         { status: 400 },
       );
 
-    const title = await getJobOfferTitleById(jobOferId);
+    const title = await getJobOfferTitleById(jobOfferId);
 
     if (!title)
       return NextResponse.json(

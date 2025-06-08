@@ -1,6 +1,7 @@
+"use client"
+
 import React, {
     useState,
-    useRef,
     useEffect,
     useCallback,
     ChangeEvent,
@@ -8,16 +9,14 @@ import React, {
 } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Upload, Building2, ImageIcon, Camera } from "lucide-react";
+import { Upload, Building2, ImageIcon, Camera, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-import { toast } from "sonner";
-import LoadingSpinner from "../ui/LoadingSpinner";
-import { getCompanyLogoUrl } from "@/utils/supabase/storage-client";
+import axios from "axios";
 
 interface LogoFile {
     url: string;
     fileName: string;
-    size: number;
+    size?: number;
     uploadedAt: string;
 }
 
@@ -33,23 +32,11 @@ const acceptedTypes = [
     "image/jpg",
     "image/png",
     "image/webp",
-    "image/gif",
 ];
 
 const acceptedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
-const maxFileSize = 5 * 1024 * 1024;
+const maxFileSize = 5 * 1024 * 1024; // 5MB
 
-const sizeClasses = {
-    sm: "w-16 h-16",
-    md: "w-24 h-24",
-    lg: "w-32 h-32",
-};
-
-const iconSizes = {
-    sm: 24,
-    md: 32,
-    lg: 40,
-};
 
 export default function CompanyLogoUploader({
     companyId,
@@ -57,59 +44,40 @@ export default function CompanyLogoUploader({
     onLogoUpdate,
     size = "md",
 }: CompanyLogoUploaderProps) {
+    const [uploading, setUploading] = useState(false);
     const [logoFile, setLogoFile] = useState<LogoFile | null>(null);
-    const [isFetching, setIsFetching] = useState(true);
-    const [isUploading, setIsUploading] = useState(false);
+    const [isLogoFetching, setIsLogoFetching] = useState<boolean>(true);
     const [isDragging, setIsDragging] = useState(false);
-    const [isHovering, setIsHovering] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isHovering, setIsHovering] = useState(false);
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const supabase = createClient();
 
     const validateFile = (file: File): string | null => {
         if (!acceptedTypes.includes(file.type)) {
-            return "Please upload a JPG, PNG, WebP, or GIF image.";
+            return "Please upload a JPG, PNG, WebP, or GIF image";
         }
         if (file.size > maxFileSize) {
-            return "File size must be less than 5 MB.";
+            return "Image size must be less than 5MB";
         }
         return null;
     };
 
-    const extractFileNameFromUrl = (url: string): string | null => {
+    const updateLogoInDatabase = async (logoUrl: string | null) => {
         try {
-            const segments = url.split("/");
-            const last = segments[segments.length - 1];
-            return last.split("?")[0] || null;
-        } catch {
-            return null;
+            const response = await axios.patch(`/api/companies/${companyId}/logo`, {
+                logoUrl,
+            });
+
+            return response.data;
+        } catch (error: any) {
+            const message =
+                error.response?.data?.error ||
+                `HTTP ${error.response?.status}: Failed to update logo`;
+            console.error("Failed to update logo URL in database:", message);
+            throw new Error(message);
         }
     };
-
-    const fetchExistingLogo = async () => {
-        try {
-            const url = await getCompanyLogoUrl(companyId);
-            if (url) {
-                setLogoFile({
-                    url,
-                    fileName: extractFileNameFromUrl(url) || "",
-                    size: 0,
-                    uploadedAt: new Date().toISOString(),
-                });
-            } else {
-                setLogoFile(null);
-            }
-        } catch (err) {
-            console.error("Error fetching logo:", err);
-        } finally {
-            setIsFetching(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchExistingLogo();
-    }, [companyId]);
 
     const uploadFile = async (file: File) => {
         const validationError = validateFile(file);
@@ -118,149 +86,269 @@ export default function CompanyLogoUploader({
             return;
         }
 
+        const fileExt = file.name.split(".").pop();
+        const filePath = `${companyId}/logo.${fileExt}`;
+
+        setUploading(true);
         setError(null);
-        setIsUploading(true);
 
         try {
-            const ext = file.name.split(".").pop();
-            const fileName = `logo.${ext}`;
-            const fullPath = `${companyId}/${fileName}`;
+            const { data: existingFiles, error: listError } = await supabase.storage
+                .from("company-logos")
+                .list(`${companyId}/`);
+
+            if (listError) throw listError;
+
+            if (existingFiles && existingFiles.length > 0) {
+                const pathsToDelete = existingFiles.map(
+                    (file) => `${companyId}/${file.name}`,
+                );
+                const { error: deleteError } = await supabase.storage
+                    .from("company-logos")
+                    .remove(pathsToDelete);
+                if (deleteError) throw deleteError;
+            }
 
             const { error: uploadError } = await supabase.storage
                 .from("company-logos")
-                .upload(fullPath, file, {
+                .upload(filePath, file, {
                     cacheControl: "3600",
                     upsert: true,
                     contentType: file.type,
                 });
+
             if (uploadError) throw uploadError;
 
-            const newUrl = await getCompanyLogoUrl(companyId);
-            if (!newUrl) throw new Error("Failed to get updated logo URL");
+            const { data } = supabase.storage.from("company-logos").getPublicUrl(filePath);
+            const url = data?.publicUrl;
 
-            setLogoFile({
-                url: newUrl,
-                fileName,
-                size: file.size,
-                uploadedAt: new Date().toISOString(),
-            });
-            onLogoUpdate?.(newUrl);
-            toast.success("Company logo updated successfully!");
+            if (url) {
+                await updateLogoInDatabase(url);
+
+                setLogoFile({
+                    url: url,
+                    size: file.size,
+                    uploadedAt: new Date().toISOString(),
+                    fileName: file.name,
+                });
+                onLogoUpdate?.(url);
+            }
         } catch (err: any) {
-            console.error("Upload error:", err);
+            console.error("Upload failed:", err.message || err);
             setError(err.message || "Upload failed. Please try again.");
-            toast.error("Failed to upload company logo.");
         } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = "";
+            setUploading(false);
         }
     };
 
-    const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleFileInput = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (!file) return;
         await uploadFile(file);
     };
 
-    const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    const handleDragOver = useCallback((e: DragEvent) => {
         e.preventDefault();
         setIsDragging(true);
     }, []);
 
-    const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    const handleDragLeave = useCallback((e: DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
     }, []);
 
-    const handleDrop = useCallback(async (e: DragEvent<HTMLDivElement>) => {
+    const handleDrop = useCallback(async (e: DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
+
         const droppedFiles = e.dataTransfer.files;
         if (droppedFiles.length > 0) {
             await uploadFile(droppedFiles[0]);
         }
     }, []);
 
-    const handleUploadClick = () => {
-        fileInputRef.current?.click();
+    const handleRemoveLogo = async () => {
+        if (!logoFile) return;
+
+        try {
+            const { data: existingFiles, error: listError } = await supabase.storage
+                .from("company-logos")
+                .list(`${companyId}/`);
+
+            if (listError) throw listError;
+
+            if (existingFiles && existingFiles.length > 0) {
+                const pathsToDelete = existingFiles.map(
+                    (file) => `${companyId}/${file.name}`,
+                );
+                const { error: deleteError } = await supabase.storage
+                    .from("company-logos")
+                    .remove(pathsToDelete);
+                if (deleteError) throw deleteError;
+            }
+
+            await updateLogoInDatabase(null);
+
+            setLogoFile(null);
+            onLogoUpdate?.(null);
+        } catch (err: any) {
+            console.error("Delete failed:", err.message || err);
+            setError(err.message || "Failed to delete logo. Please try again.");
+        }
+    };
+
+    const getLogoFile = async (companyId: string): Promise<LogoFile | null> => {
+        try {
+            const { data } = await axios.get(`/api/companies/${companyId}/logo`);
+
+            if (data?.logoUrl) {
+                return {
+                    url: data.logoUrl,
+                    uploadedAt: new Date().toISOString(),
+                    fileName: 'logo',
+                };
+            }
+        } catch (error: any) {
+            if (error?.response?.status !== 404) {
+                console.error("Error fetching logo from API:", error);
+                return null;
+            }
+        }
+        return null;
     };
 
     useEffect(() => {
-        if (currentLogoUrl && !logoFile) {
-            setLogoFile({
-                url: currentLogoUrl,
-                fileName: extractFileNameFromUrl(currentLogoUrl) || "",
-                size: 0,
-                uploadedAt: new Date().toISOString(),
-            });
-        }
-    }, [currentLogoUrl, logoFile]);
+        getLogoFile(companyId).then((file) => {
+            setLogoFile(file);
+            setIsLogoFetching(false);
+        });
+    }, [companyId]);
 
     return (
-        <div className="flex flex-col items-center space-y-2">
+        <div className="w-full max-w-md mx-auto">
+            {/* Error Message */}
             {error && (
-                <div className="w-full p-2 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-xs text-red-600">{error}</p>
+                <div className="w-full p-3 mb-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">{error}</p>
                 </div>
             )}
 
-            <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-                className={`relative ${sizeClasses[size]} rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center transition-all duration-200 ${isDragging ? "ring-4 ring-gray-200 scale-105" : ""
-                    } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
-            >
-                <input
-                    type="file"
-                    accept={acceptedExtensions.join(",")}
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                    disabled={isUploading}
-                    className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
-                />
-
-                {isUploading ? (
-                    <LoadingSpinner />
-                ) : logoFile ? (
-                    <Image
-                        src={logoFile.url}
-                        alt="Company Logo"
-                        fill
-                        className="object-cover"
-                        sizes={`${sizeClasses[size]}`}
-                    />
-                ) : (
-                    <Building2 className="text-gray-300" size={iconSizes[size]} />
-                )}
-
+            <div className="flex flex-col items-center gap-4">
+                {/* Logo Display with Drag & Drop */}
                 <div
-                    className={`absolute inset-0 bg-black/60 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center transition-all duration-300 ${isHovering || isDragging ? "opacity-100 scale-105" : "opacity-0 scale-95 pointer-events-none"
-                        }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                    className={`relative group cursor-pointer transition-all duration-200 rounded-lg
+                        ${isDragging ? 'scale-105 ring-4 ring-gray-200' : ''}
+                        ${uploading ? 'pointer-events-none opacity-50' : ''}
+                    `}
                 >
-                    <div className="text-center text-white">
-                        {isDragging ? (
-                            <>
-                                <ImageIcon className="w-8 h-8 mb-1 animate-bounce" />
-                                <p className="text-xs font-medium">Drop here</p>
-                            </>
-                        ) : (
-                            <>
-                                <Camera className="w-8 h-8 mx-auto mb-1" />
-                                <p className="text-xs font-medium">Change</p>
-                            </>
+                    <input
+                        type="file"
+                        accept={acceptedExtensions.join(',')}
+                        onChange={handleFileInput}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-lg z-10"
+                        disabled={uploading}
+                    />
+
+                    <div className="relative">
+                        {/* Logo Image or Placeholder */}
+                        <div className={`w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-50 flex items-center justify-center`}>
+                            {!isLogoFetching && logoFile ? (
+                                <Image
+                                    src={`${logoFile.url}?v=${new Date().getTime()}`}
+                                    alt="Company Logo"
+                                    width={128}
+                                    height={128}
+                                    className="w-full h-full object-cover"
+                                    loading="eager"
+                                />
+                            ) : !isLogoFetching ? (
+                                <Building2 className={`w-12 h-12 text-gray-400`} strokeWidth={1} />
+                            ) : (
+                                <div className="w-16 h-16 border-4 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                            )}
+                        </div>
+
+                        {/* Upload Overlay */}
+                        <div
+                            className={`absolute inset-0 rounded-lg flex items-center justify-center 
+                    bg-black/60 backdrop-blur-sm
+                    transition-all duration-300 ease-in-out
+                    ${isHovering || isDragging ? 'opacity-100 scale-105' : 'opacity-0 scale-95 pointer-events-none'}
+                `}
+                        >
+                            <div className="text-center text-white">
+                                {isDragging ? (
+                                    <>
+                                        <ImageIcon className="w-8 h-8 mx-auto mb-1 animate-bounce" />
+                                        <p className="text-xs font-medium">Drop here</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Camera className="w-8 h-8 mx-auto mb-1" />
+                                        <p className="text-xs font-medium">Change</p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Upload Progress Indicator */}
+                        {uploading && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                                <div className="text-center text-white">
+                                    <Upload className="w-8 h-8 mx-auto mb-1 animate-pulse" />
+                                    <p className="text-xs font-medium">Uploading...</p>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>
-            </div>
 
-            <div className="flex space-x-2">
-                <Button onClick={handleUploadClick} disabled={isUploading} variant="default" type="button" size="sm">
-                    <Upload className="w-4 h-4 mr-1" />
-                    {logoFile ? "Change Logo" : "Upload Logo"}
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                    {/* Upload Button */}
+                    <Button asChild disabled={uploading} variant="default">
+                        <label className="cursor-pointer">
+                            <Upload className="w-4 h-4 mr-2" />
+                            {logoFile ? 'Change Logo' : 'Upload Logo'}
+                            <input
+                                type="file"
+                                accept={acceptedExtensions.join(',')}
+                                onChange={handleFileInput}
+                                hidden
+                            />
+                        </label>
+                    </Button>
+
+                    {/* Remove Button - Only show if logo exists */}
+                    {logoFile && (
+                        <Button
+                            onClick={handleRemoveLogo}
+                            variant="outline"
+                            disabled={uploading}
+                            className="text-red-600 hover:text-red-700"
+                        >
+                            <X className="w-4 h-4 mr-2" />
+                            Remove
+                        </Button>
+                    )}
+                </div>
+
+                {/* Upload Instructions */}
+                {!logoFile && !uploading && (
+                    <div className="text-center">
+                        <p className="text-sm text-gray-500">
+                            Drag & drop an image or click to browse
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                            JPG, PNG, WebP, GIF • Max 5MB
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -5,10 +5,11 @@ import Image from "next/image";
 import { useState, ChangeEvent, useEffect, useCallback, DragEvent } from "react";
 import { User, Upload, X, Camera, ImageIcon } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import axios from "axios";
 
 interface AvatarFile {
   url: string;
-  size: number;
+  size?: number;
   uploadedAt: string;
   fileName: string;
 }
@@ -27,7 +28,7 @@ const maxFileSize = 2 * 1024 * 1024; // 2MB
 export default function AvatarUploader({ userId }: { userId: string }) {
   const [uploading, setUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<AvatarFile | null>(null);
-  const [avatarFetch, setAvatarFetch] = useState<boolean>(true);
+  const [isAvatarFetching, setIsAvatarFetching] = useState<boolean>(true);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -44,12 +45,20 @@ export default function AvatarUploader({ userId }: { userId: string }) {
     return null;
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  const updateAvatarInDatabase = async (avatarUrl: string | null) => {
+    try {
+      const response = await axios.patch(`/api/users/${userId}/avatar`, {
+        avatarUrl,
+      });
+
+      return response.data;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.error ||
+        `HTTP ${error.response?.status}: Failed to update avatar`;
+      console.error("Failed to update avatar URL in database:", message);
+      throw new Error(message);
+    }
   };
 
   const uploadFile = async (file: File) => {
@@ -66,14 +75,12 @@ export default function AvatarUploader({ userId }: { userId: string }) {
     setError(null);
 
     try {
-      // List all existing avatar files
       const { data: existingFiles, error: listError } = await supabase.storage
         .from("avatars")
         .list(`${userId}/`);
 
       if (listError) throw listError;
 
-      // Delete all existing avatar files
       if (existingFiles && existingFiles.length > 0) {
         const pathsToDelete = existingFiles.map(
           (file) => `${userId}/${file.name}`,
@@ -84,7 +91,6 @@ export default function AvatarUploader({ userId }: { userId: string }) {
         if (deleteError) throw deleteError;
       }
 
-      // Upload the new avatar
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file, {
@@ -99,6 +105,8 @@ export default function AvatarUploader({ userId }: { userId: string }) {
       const url = data?.publicUrl;
 
       if (url) {
+        await updateAvatarInDatabase(url);
+
         setAvatarFile({
           url: url,
           size: file.size,
@@ -160,6 +168,8 @@ export default function AvatarUploader({ userId }: { userId: string }) {
         if (deleteError) throw deleteError;
       }
 
+      await updateAvatarInDatabase(null);
+
       setAvatarFile(null);
     } catch (err: any) {
       console.error("Delete failed:", err.message || err);
@@ -169,29 +179,20 @@ export default function AvatarUploader({ userId }: { userId: string }) {
 
   const getAvatarFile = async (userId: string): Promise<AvatarFile | null> => {
     try {
-      const { data: files, error } = await supabase.storage
-        .from("avatars")
-        .list(`${userId}/`);
+      const { data } = await axios.get(`/api/users/${userId}/avatar`);
 
-      if (error || !files || files.length === 0) {
-        return null;
-      }
-
-      const avatarFile = files[0];
-      const { data } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(`${userId}/${avatarFile.name}`);
-
-      if (data?.publicUrl) {
+      if (data?.avatarUrl) {
         return {
-          url: data.publicUrl,
-          size: avatarFile.metadata?.size || 0,
-          uploadedAt: avatarFile.created_at || new Date().toISOString(),
-          fileName: avatarFile.name,
+          url: data.avatarUrl,
+          uploadedAt: new Date().toISOString(),
+          fileName: 'avatar',
         };
       }
-    } catch (error) {
-      console.error("Error fetching avatar:", error);
+    } catch (error: any) {
+      if (error?.response?.status !== 404) {
+        console.error("Error fetching avatar from API:", error);
+        return null;
+      }
     }
     return null;
   };
@@ -199,7 +200,7 @@ export default function AvatarUploader({ userId }: { userId: string }) {
   useEffect(() => {
     getAvatarFile(userId).then((file) => {
       setAvatarFile(file);
-      setAvatarFetch(false);
+      setIsAvatarFetching(false);
     });
   }, [userId]);
 
@@ -236,7 +237,7 @@ export default function AvatarUploader({ userId }: { userId: string }) {
           <div className="relative">
             {/* Avatar Image or Placeholder */}
             <div className="h-32 w-32 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
-              {!avatarFetch && avatarFile ? (
+              {!isAvatarFetching && avatarFile ? (
                 <Image
                   src={`${avatarFile.url}?v=${new Date().getTime()}`}
                   alt="Avatar"
@@ -245,7 +246,7 @@ export default function AvatarUploader({ userId }: { userId: string }) {
                   className="w-full h-full object-cover"
                   loading="eager"
                 />
-              ) : !avatarFetch ? (
+              ) : !isAvatarFetching ? (
                 <User className="w-16 h-16 text-gray-400" strokeWidth={1} />
               ) : (
                 <div className="w-16 h-16 border-4 border-gray-300 border-t-transparent rounded-full animate-spin" />
@@ -302,6 +303,19 @@ export default function AvatarUploader({ userId }: { userId: string }) {
               />
             </label>
           </Button>
+
+          {/* Remove Button - Only show if avatar exists */}
+          {avatarFile && (
+            <Button
+              onClick={handleRemoveAvatar}
+              variant="outline"
+              disabled={uploading}
+              className="text-red-600 hover:text-red-700"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Remove
+            </Button>
+          )}
         </div>
 
         {/* Upload Instructions */}

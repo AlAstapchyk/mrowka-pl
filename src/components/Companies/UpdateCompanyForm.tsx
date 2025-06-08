@@ -30,7 +30,6 @@ export default function UpdateCompanyForm() {
     defaultValues: {
       name: "",
       description: "",
-      logoUrl: "",
       industry: "",
       website: "",
       companySize: undefined,
@@ -89,47 +88,6 @@ export default function UpdateCompanyForm() {
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
 
       const company = await axios.put(`${baseUrl}/api/companies/${companyId}/update`, data);
-
-      // const hasProfileData =
-      //   data.industry ||
-      //   data.website ||
-      //   data.companySize ||
-      //   data.companyDescription;
-
-      // if (hasProfileData) {
-      //   // Try PUT first; if 404, do POST
-      //   try {
-      //     await axios.put(`${baseUrl}/api/company-profiles/${companyId}`, {
-      //       companyId,
-      //       logoUrl: data.logoUrl,
-      //       industry: data.industry,
-      //       website: data.website,
-      //       companySize: data.companySize,
-      //       companyDescription: data.companyDescription,
-      //     });
-      //   } catch (err: any) {
-      //     if (err.response?.status === 404) {
-      //       // Create if not exist
-      //       await axios.post(`${baseUrl}/api/company-profiles`, {
-      //         companyId,
-      //         logoUrl: data.logoUrl,
-      //         industry: data.industry,
-      //         website: data.website,
-      //         companySize: data.companySize,
-      //         companyDescription: data.companyDescription,
-      //       });
-      //     } else {
-      //       throw err;
-      //     }
-      //   }
-      // } else {
-      //   // If there is no profile data at all, call DELETE or PUT with nulls
-      //   try {
-      //     await axios.delete(`${baseUrl}/api/company-profiles/${companyId}`);
-      //   } catch {
-      //     // ignore if not exist
-      //   }
-      // }
 
       toast.success("Company updated successfully!");
       router.push(`/companies/${companyId}`);

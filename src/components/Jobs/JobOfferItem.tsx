@@ -6,6 +6,7 @@ import {
   WORKING_MODES,
 } from "@/mapping";
 import { Briefcase, Clock, DollarSign, Layers } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -30,7 +31,7 @@ const JobOfferItem = ({ jobOffer }: { jobOffer: FilteredJobOffer }) => {
         </span>
       </div>
 
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="my-2 flex flex-wrap gap-2">
         <div className="flex items-center gap-1 rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-200">
           <Briefcase className="h-3 w-3" />
           <span>{getLabelById(EMPLOYMENT_TYPES, jobOffer.employmentType)}</span>
@@ -47,11 +48,11 @@ const JobOfferItem = ({ jobOffer }: { jobOffer: FilteredJobOffer }) => {
         </div>
       </div>
 
-      <div className="mt-2 flex gap-3 border-t border-gray-700 pt-3">
-        <img
+      <div className="mt-auto flex gap-3 border-t border-gray-700 pt-3">
+        <Image
           width={48}
           height={48}
-          src={jobOffer.logoUrl ?? ""}
+          src={`${jobOffer.logoUrl}?v=${new Date().getTime()}`}
           alt={`${jobOffer.companyName} logo`}
           className="h-12 w-12 rounded-full object-cover"
         />

@@ -22,7 +22,6 @@ export default function RegisterCompanyForm() {
         defaultValues: {
             name: "",
             description: "",
-            logoUrl: "",
             industry: "",
             website: "",
             companySize: undefined,
@@ -45,7 +44,6 @@ export default function RegisterCompanyForm() {
                 {
                     name: data.name,
                     description: data.description,
-                    logoUrl: data.logoUrl,
                     createdBy: user.id,
                 }
             );

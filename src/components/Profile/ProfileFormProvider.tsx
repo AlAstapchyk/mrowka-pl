@@ -12,7 +12,7 @@ import { JobSeekerProfileForm } from "./JobSeekerProfileForm";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AvatarUploader from "./AvatarUploader";
 import { createClient } from "@/utils/supabase/client";
-import CVUploader from "../CVUploader";
+import CVUploader from "./CVUploader";
 import { toast } from "sonner";
 import { User } from "@/db/schema";
 

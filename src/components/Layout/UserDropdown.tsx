@@ -13,22 +13,20 @@ import { UserIcon } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import { useEffect, useState } from "react";
-import { getAvatarUrl } from "@/utils/supabase/storage-client";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import axios from "axios";
+import { User } from "@/db/schema";
 
 export default function UserDropdown() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [role, setRole] = useState<string>();
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userData, setUserData] = useState<User>();
 
   useEffect(() => {
     if (!user) return;
 
-    getAvatarUrl(user.id).then((url) => setAvatarUrl(url));
-    axios.get(`/api/users/${user.id}/role`).then((res) => setRole(res.data.role));
+    axios.get(`/api/users/${user.id}`).then((res) => setUserData(res.data));
   }, [user]);
 
   if (authLoading) {
@@ -64,9 +62,9 @@ export default function UserDropdown() {
           variant="ghost"
           className="flex items-center gap-2 p-0 pr-2 pl-1"
         >
-          {avatarUrl ? (
+          {userData?.avatarUrl ? (
             <Image
-              src={`${avatarUrl}?v=${Date.now()}`}
+              src={`${userData.avatarUrl}?v=${Date.now()}`}
               width={30}
               height={30}
               alt="Avatar"
@@ -89,7 +87,7 @@ export default function UserDropdown() {
         >
           My Profile
         </DropdownMenuItem>
-        {role === "job_seeker" ? (<>
+        {userData?.role === "job_seeker" ? (<>
           <DropdownMenuItem
             className="cursor-pointer"
             onClick={() => router.push("/saved-jobs")}
@@ -104,7 +102,7 @@ export default function UserDropdown() {
           </DropdownMenuItem>
         </>) : <></>}
 
-        {role === "recruiter" ? (<>
+        {userData?.role === "recruiter" ? (<>
           <DropdownMenuItem
             className="cursor-pointer"
             onClick={() => router.push("/companies")}

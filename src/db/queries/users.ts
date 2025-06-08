@@ -17,16 +17,13 @@ export async function getUserById(id: string) {
     const user = await db.select().from(users).where(eq(users.id, id)).limit(1);
 
     if (!user || user.length === 0) {
-      console.log(`User with id ${id} not found.`);
+      console.error(`User with id ${id} not found.`);
       return null;
     }
 
     return user[0];
   } catch (error) {
-    console.error(
-      "Error fetching user:",
-      error instanceof Error ? error.message : error,
-    );
+    console.error("Error fetching user:", error);
     throw new Error("Error fetching user");
   }
 }
@@ -107,5 +104,35 @@ export async function upsertUser(
   } catch (error) {
     console.error("Error inserting/updating user:", error);
     throw new Error("Error inserting/updating user");
+  }
+}
+
+export async function getUserAvatarUrl(userId: string) {
+  try {
+    const [{ avatarUrl }] = await db
+      .select({ avatarUrl: users.avatarUrl })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    return avatarUrl;
+  } catch (error: any) {
+    console.error("Error fetching user avatar url:", error);
+    throw new Error("Error fetching user avatar url");
+  }
+}
+
+export async function updateUserAvatarUrl(userId: string, avatarUrl: string) {
+  try {
+    const [data] = await db
+      .update(users)
+      .set({ avatarUrl: avatarUrl })
+      .where(eq(users.id, userId))
+      .returning({ id: users.id, avatarUrl: users.avatarUrl });
+
+    return data.avatarUrl;
+  } catch (error: any) {
+    console.error("Error fetching user avatar url:", error);
+    throw new Error("Error fetching user avatar url");
   }
 }

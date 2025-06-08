@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "../../ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const JobOfferCardHeader = ({
   jobOffer,
@@ -18,8 +19,10 @@ const JobOfferCardHeader = ({
         <div className="flex items-center space-x-4">
           {jobOffer.logoUrl && (
             <Link href={`/companies/view/${jobOffer.companyId}`} className="flex h-16 w-16 items-center justify-center cursor-pointer">
-              <img
-                src={jobOffer.logoUrl ?? "Company's logo"}
+              <Image
+                width={64}
+                height={64}
+                src={`${jobOffer.logoUrl}?v=${new Date().getTime()}`}
                 alt={`${jobOffer.companyName} logo`}
                 className="max-h-full max-w-full"
               />

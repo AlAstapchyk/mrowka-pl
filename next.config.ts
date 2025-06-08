@@ -1,7 +1,7 @@
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 // Extract the hostname only (removes "https://")
-const supabaseHostname = new URL(supabaseUrl).hostname;
+const supabaseHostnames = [new URL(supabaseUrl).hostname, "logo.clearbit.com"];
 
 // next.config.ts
 // X-Frame-Options: DENY: Prevents your site from being embedded in iframes (clickjacking protection)
@@ -36,6 +36,6 @@ module.exports = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: [supabaseHostname],
+    domains: supabaseHostnames,
   },
 };

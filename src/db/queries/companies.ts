@@ -205,6 +205,36 @@ export async function updateCompanyById(
   });
 }
 
+export async function getCompanyLogoUrl(companyId: string) {
+  try {
+    const [{ logoUrl }] = await db
+      .select({ logoUrl: companies.logoUrl })
+      .from(companies)
+      .where(eq(companies.id, companyId))
+      .limit(1);
+
+    return logoUrl;
+  } catch (error: any) {
+    console.error("Error fetching company logo url:", error);
+    throw new Error("Error fetching company logo url");
+  }
+}
+
+export async function updateCompanyLogoUrl(userId: string, avatarUrl: string) {
+  try {
+    const [data] = await db
+      .update(companies)
+      .set({ logoUrl: avatarUrl })
+      .where(eq(companies.id, userId))
+      .returning({ id: companies.id, avatarUrl: companies.logoUrl });
+
+    return data;
+  } catch (error: any) {
+    console.error("Error fetching company logo url:", error);
+    throw new Error("Error fetching company logo url");
+  }
+}
+
 // export async function addCompanyMember(
 //   companyId: string,
 //   userId: string,

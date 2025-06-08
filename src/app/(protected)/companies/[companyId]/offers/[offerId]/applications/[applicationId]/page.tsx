@@ -1,11 +1,12 @@
 import { getJobApplicationById } from "@/db/queries/job-applications";
-import { getAvatarUrl, getSignedResumeUrl } from "@/utils/supabase/storage-server";
+import { getSignedResumeUrl } from "@/utils/supabase/storage-server";
 import { Download, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ActionButtons from "@/components/Companies/Applications/ActionButtons";
 import StatusBadge from "@/components/Companies/Applications/StatusBadge";
+import { getUserAvatarUrl } from "@/db/queries/users";
 
 interface JobApplicationPageProps {
     params: Promise<{
@@ -36,7 +37,7 @@ const JobApplicationPage = async ({ params }: JobApplicationPageProps) => {
         );
     }
 
-    const avatarUrl = await getAvatarUrl(application.userId);
+    const avatarUrl = await getUserAvatarUrl(application.userId);
     const resumeUrl = await getSignedResumeUrl(application.id);
 
     return (

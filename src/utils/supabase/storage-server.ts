@@ -86,31 +86,3 @@ export async function getSignedResumeUrl(applicationId: string) {
     }
   }
 }
-
-export const getAvatarUrl = async (userId: string): Promise<string | null> => {
-  try {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase.storage
-      .from("avatars")
-      .list(`${userId}/`);
-
-    if (error) {
-      console.error("Error listing resume files:", error.message);
-      return null;
-    }
-
-    if (!data || data.length === 0) return null;
-
-    const file = data[0];
-
-    const { data: publicUrlData } = await supabase.storage
-      .from("avatars")
-      .getPublicUrl(`${userId}/${file.name}`);
-
-    return publicUrlData?.publicUrl || null;
-  } catch (err) {
-    console.error("Error fetching resume URL:", err);
-    return null;
-  }
-};
