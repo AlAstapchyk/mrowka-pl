@@ -10,23 +10,27 @@ export const metadata: Metadata = {
 
 const page = async () => {
   return (
-    <div className="container mt-4 flex">
+    <div className="container mt-4">
       <Suspense fallback={<></>}>
-        <div className="options">
-          <SearchFilter />
-        </div>
-
-        <main className="mt-4 ml-4 flex flex-grow flex-col gap-4">
-          <div>
-            <h1 className="mb-4 text-center text-2xl font-bold">Searching</h1>
-
-            <div className="flex rounded-xl border border-black p-4">
-              <JobSearch />
-            </div>
+        <div className="flex flex-col lg:flex-row">
+          {/* Filters - Mobile: Above content, Desktop: Sidebar */}
+          <div className="lg:mr-4">
+            <SearchFilter />
           </div>
 
-          <JobOffersPagination />
-        </main>
+          {/* Main Content */}
+          <main className="flex flex-1 flex-col gap-4 lg:mt-4">
+            <div>
+              <h1 className="mb-4 text-center text-2xl font-bold">Searching</h1>
+
+              <div className="flex rounded-xl border border-black p-4">
+                <JobSearch />
+              </div>
+            </div>
+
+            <JobOffersPagination />
+          </main>
+        </div>
       </Suspense>
     </div>
   );

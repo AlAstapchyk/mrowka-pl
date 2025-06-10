@@ -16,7 +16,7 @@ const NavBar = () => {
           src="/mrowka-pl-logo.png"
           loading="eager"
         />
-        <span className="font-serif text-2xl font-bold">Mrówka.pl</span>
+        <span className="font-serif text-2xl font-bold max-[30rem]:hidden">Mrówka.pl</span>
       </Link>
 
       <div className="ml-auto flex items-center gap-2">

@@ -2,6 +2,7 @@ import {
   getJobSeekerProfileByUserId,
   upsertJobSeekerProfile,
 } from "@/db/queries/job-seeker-profiles";
+import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -37,6 +38,15 @@ export async function PUT(
 ) {
   const { userId } = await params;
   const jobSeekerProfileData = await req.json();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user || user.id !== userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   console.log("Updating job seeker profile for userId:", userId);
   console.log(jobSeekerProfileData);

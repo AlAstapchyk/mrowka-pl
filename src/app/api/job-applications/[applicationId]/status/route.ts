@@ -1,4 +1,5 @@
 import { changeApplicationStatus } from "@/db/queries/job-applications";
+import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
@@ -6,6 +7,17 @@ export async function PATCH(
   { params }: { params: Promise<{ applicationId: string }> },
 ) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // TODO: validate company membership
+
     const applicationId = (await params)?.applicationId;
 
     if (!applicationId)

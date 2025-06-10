@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserAvatarUrl, updateUserAvatarUrl } from "@/db/queries/users";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(
   request: NextRequest,
@@ -42,15 +43,16 @@ export async function PATCH(
 ) {
   try {
     const userId = (await params).id;
-
     const body = await request.json();
     const avatarUrl = body.avatarUrl;
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error || !user || userId !== user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (avatarUrl !== null && typeof avatarUrl !== "string") {

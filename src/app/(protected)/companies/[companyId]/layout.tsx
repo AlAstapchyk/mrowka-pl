@@ -1,14 +1,31 @@
 import ClientBreadcrumbs from "@/components/Companies/ClientBreadcrumbs";
 import { getCompanyById } from "@/db/queries/companies";
+import { getCompanyMemberRoleByUserIdAndCompanyId } from "@/db/queries/company-members";
+import { createClient } from "@/utils/supabase/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import React from "react";
 
 const Layout = async ({ children, params }: { children: React.ReactNode, params: Promise<{ companyId: string }> }) => {
+    const supabase = await createClient();
+    const user = (await supabase.auth.getUser()).data.user;
+
+    if (!user?.id) return;
+
     const resolvedParams = await params;
     const { companyId } = resolvedParams;
 
     if (!companyId) return notFound();
+
+    const memberRole = await getCompanyMemberRoleByUserIdAndCompanyId(user.id, companyId)
+
+    console.log("member role", memberRole);
+
+    if (!memberRole) return (
+        <div className="container mx-auto my-4 flex h-full">
+            <p className="text-3xl m-auto flex">You are not member of this company this company</p>
+        </div>
+    );
 
     try {
         const company = await getCompanyById(companyId);

@@ -1,5 +1,7 @@
+import NotFound from "@/app/not-found";
 import JobOfferItem from "@/components/Jobs/JobOfferItem";
 import { getFilteredJobOffers } from "@/db/queries/job-offers";
+import { getUserRoleById } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import React from "react";
@@ -13,6 +15,10 @@ const page = async () => {
   const user = (await supabase.auth.getUser()).data.user;
 
   if (!user) throw new Error("User is not authenticated");
+
+  const role = await getUserRoleById(user.id);
+
+  if (role !== "job_seeker") return NotFound();
 
   const { data: appliedJobs, count } = await getFilteredJobOffers({
     userId: user?.id,

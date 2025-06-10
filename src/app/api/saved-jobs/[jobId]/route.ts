@@ -30,12 +30,12 @@ export async function DELETE(
   { params }: { params: Promise<{ jobId: string }> },
 ) {
   const jobId = (await params).jobId;
+
   const supabase = await createClient();
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-
   if (error || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -74,12 +74,12 @@ const JobSearch = () => {
           <b>{totalCount}</b> job offers found
         </div>
 
-        <div className="ml-auto flex gap-4">
+        <div className="ml-auto flex gap-4 max-sm:flex-col">
           <Select
             value={`${params.pageSize}`}
             onValueChange={handlePageSizeChange}
           >
-            <SelectTrigger className="w-[150px] cursor-pointer">
+            <SelectTrigger className="sm:w-[150px] w-[128px] cursor-pointer">
               <SelectValue placeholder="Offers on the page" />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +102,7 @@ const JobSearch = () => {
             value={`${params.sortDirection}`}
             onValueChange={handleSortChange}
           >
-            <SelectTrigger className="w-[150px] cursor-pointer">
+            <SelectTrigger className="sm:w-[150px] w-[128px] cursor-pointer">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>

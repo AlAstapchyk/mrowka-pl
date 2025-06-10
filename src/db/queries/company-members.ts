@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "..";
 import { companies, CompanyMemberRole, companyMembers, users } from "../schema";
 
@@ -67,5 +67,30 @@ export async function deleteMember(memberId: string) {
   } catch (error) {
     console.error("Error deleting member:", error);
     throw new Error("Failed to delete member");
+  }
+}
+
+export async function getCompanyMemberRoleByUserIdAndCompanyId(
+  userId: string,
+  companyId: string,
+) {
+  try {
+    const [data] = await db
+      .select({ memberRole: companyMembers.role })
+      .from(companyMembers)
+      .innerJoin(companies, eq(companies.id, companyMembers.companyId))
+      .innerJoin(users, eq(users.id, companyMembers.userId))
+      .where(
+        and(
+          eq(companyMembers.userId, userId),
+          eq(companyMembers.companyId, companyId),
+        ),
+      )
+      .limit(1);
+
+    return data?.memberRole;
+  } catch (error: any) {
+    console.error("Error getting member role:", error);
+    throw new Error("Failed to get member role");
   }
 }

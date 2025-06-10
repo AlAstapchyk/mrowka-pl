@@ -1,5 +1,6 @@
 "use server";
 import { getUserById, updateUser } from "@/db/queries/users";
+import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -30,6 +31,15 @@ export async function PUT(
 ) {
   const { id } = await params;
   const userData = await req.json();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user || id !== user.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const updatedUser = await updateUser(id, userData);

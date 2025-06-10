@@ -65,6 +65,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // TODO: validate company membership
+
     const body = await request.json();
 
     const jobOffer = await createJobOfferByCompanyId(body);
