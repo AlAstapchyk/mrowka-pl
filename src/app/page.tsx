@@ -1,38 +1,26 @@
 import HeaderSearchForm from "@/components/Home/HeaderSearchForm";
+import HeroSection from "@/components/Home/HeroSection";
 import RecentJobs from "@/components/Home/RecentJobs";
 import { Button } from "@/components/ui/button";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
     <main className="flex flex-col">
 
-      <div className="relative h-[400px] w-full">
-        <Image
-          src="/home-bg.png"
-          alt="Background"
-          fill
-          style={{ objectFit: "cover" }}
-          priority
-        />
+      <HeroSection>
+        <p className="mx-auto mb-4 text-3xl font-medium text-white">
+          Searching for a job?
+        </p>
+        <p className="mx-auto mb-8 text-2xl font-medium text-white">
+          Find with us!
+        </p>
 
-        <div className="absolute inset-0 flex flex-col bg-black/75 px-2 py-24">
-          <p className="mx-auto mb-4 text-3xl font-medium text-white">
-            Searching for a job?
-          </p>
-          <p className="mx-auto mb-8 text-2xl font-medium text-white">
-            Find with us!
-          </p>
+        <HeaderSearchForm />
+      </HeroSection>
 
-          <Suspense fallback={<LoadingSpinner />}>
-            <HeaderSearchForm />
-          </Suspense>
-
-        </div>
-      </div>
       <RecentJobs />
 
       <section className="py-12 mb-8 mt-2 bg-black text-white">

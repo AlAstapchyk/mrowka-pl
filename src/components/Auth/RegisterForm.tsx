@@ -89,7 +89,8 @@ export default function RegisterForm() {
         toast.error("An account with this email already exists");
       } else {
         toast.success("Registration successful!", {
-          description: "Please check your email to confirm your account",
+          description: "Please check your email inbox to confirm your account before logging in.",
+          duration: 10000,
         });
         router.push("/login");
       }
@@ -104,7 +105,7 @@ export default function RegisterForm() {
       <h1 className="text-2xl font-bold">Create an account</h1>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
           <FormField
             control={form.control}
             name="firstName"
