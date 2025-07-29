@@ -227,7 +227,7 @@ const SearchFilter = () => {
       </div>
 
       {/* Desktop Filter Sidebar */}
-      <div className="hidden w-60 rounded-xl border border-black lg:block">
+      <div className="hidden mb-10 w-60 rounded-xl border border-black lg:block">
         <header className="border-b border-black px-6 py-4">
           <p className="text-xl font-semibold">Filters</p>
         </header>

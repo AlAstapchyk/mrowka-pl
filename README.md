@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mrowka.pl
 
-## Getting Started
+An open-source full-featured job platform, developed as a semester project for the Designing Information Systems university course. Inspired by Pracuj.pl, the app is built using Next.js (including API routes for backend logic), React, TypeScript, Tailwind CSS, and Supabase with its PostgreSQL database.
 
-First, run the development server:
+The project is being developed independently, with work spanning database design, authentication, and the full frontend interface. The core focus is on creating a functional, responsive, and well-structured information system.
+
+## ✨ Key Features
+
+### For Job Seekers
+
+- **Job Discovery** - Advanced search with location, salary, contract type filters, and pagination.
+- **Application Management** - Saving, applying for job offers, and lifecycle tracking with status updates.
+- **Profile Builder** - Comprehensive profile editing with avatar and resume uploading.
+
+### For Employers
+
+- **Job Posting Suite** - Rich text editor with salary ranges, benefits, and requirements.
+- **Candidate Pipeline** - Application review system.
+- **Team Collaboration** - Multi-user company accounts with role-based permissions.
+- **Employer Branding** - Customizable company pages.
+- **Recruitment Analytics** - Application metrics, job performance tracking, and hiring insights.
+- **Company Registration** - Multi-step verification process.
+
+### Advanced Platform Features
+
+- **Multi-level Authentication** - Separate access controls for job seekers, recruiters, and administrators.
+- **Document Management** - Secure CV uploads with format validation and preview.
+- **Application Status Tracking** - Pipeline updates from application to hire.
+- **Geolocation Services** - Location-based job filtering and commute calculations.
+
+---
+
+## 🏗️ Technical Architecture
+
+### Frontend Stack
+
+- **Next.js 15** - App Router with server components and streaming.
+- **React 19** - Concurrent features and modern hook patterns.
+- **TypeScript** - Strict typing with custom interfaces and utility types.
+- **Tailwind CSS** - Custom design system with component variants.
+- **shadcn/ui + Radix UI** - Accessible component primitives with custom styling.
+- **React Hook Form + Zod** - Type-safe form validation with runtime schema checking.
+
+### Backend Infrastructure
+
+- **Next.js API Routes** - RESTful endpoints with middleware authentication.
+- **Supabase** - PostgreSQL with Row Level Security and real-time subscriptions.
+- **Drizzle ORM** - Type-safe database queries with migration management.
+- **Supabase Auth** - Transactional emails for notifications and confirmations.
+- **Supabase Storage** - Document uploads with CDN delivery and automatic optimization.
+
+### Architecture
+
+- **25+ SSR Pages** with protected/public access levels.
+- **25+ API endpoints** with RESTful design.
+- **Role-based permissions** for job seekers, recruiters, and team members.
+
+---
+
+## 🧪 Testing & CI/CD
+
+### End-to-End Testing (Playwright)
+
+The platform uses **Playwright** with a **Page Object Model (POM)** architecture to verify critical user flows:
+
+- **Coverage**: Authenticated "Happy Path" (applications, profile updates, saved jobs) and public job discovery.
+- **Data Automation**: Custom seeder (`seed-test-users.ts`) bypasses email confirmation and resets test data automatically.
+
+#### Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev       # Start development server
+npm run test:e2e  # Run full E2E suite (seeds data automatically)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### CI/CD
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **GitHub Actions**: Automated pipeline runs the full suite on every push and PR.

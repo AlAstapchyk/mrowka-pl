@@ -259,7 +259,7 @@ export default function CompanyLogoUploader({
                         <div className={`w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-50 flex items-center justify-center`}>
                             {!isLogoFetching && logoFile ? (
                                 <Image
-                                    src={`${logoFile.url}?v=${new Date().getTime()}`}
+                                    src={logoFile.url}
                                     alt="Company Logo"
                                     width={128}
                                     height={128}

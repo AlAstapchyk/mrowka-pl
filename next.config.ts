@@ -1,41 +1,45 @@
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+import type { NextConfig } from "next";
 
-// Extract the hostname only (removes "https://")
-const supabaseHostnames = [new URL(supabaseUrl).hostname, "logo.clearbit.com"];
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-// next.config.ts
-// X-Frame-Options: DENY: Prevents your site from being embedded in iframes (clickjacking protection)
-// X-Content-Type-Options: nosniff: Prevents MIME type sniffing
-// Referrer-Policy: strict-origin-when-cross-origin: Controls how much referrer information is sent
-// eslint-disable-next-line no-undef
-module.exports = {
+const supabaseHostname = supabaseUrl
+  ? new URL(supabaseUrl).hostname
+  : "lzsveebdmmbtkhwitmgz.supabase.co";
+
+const nextConfig: NextConfig = {
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
     ];
   },
+
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+
   images: {
-    domains: supabaseHostnames,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: supabaseHostname,
+      },
+      {
+        protocol: "https",
+        hostname: "logo.com",
+      },
+      {
+        protocol: "https",
+        hostname: "logo.clearbit.com",
+      },
+    ],
   },
 };
+
+export default nextConfig;

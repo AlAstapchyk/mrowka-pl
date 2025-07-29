@@ -22,9 +22,10 @@ const JobOfferCardHeader = ({
               <Image
                 width={64}
                 height={64}
-                src={`${jobOffer.logoUrl}?v=${new Date().getTime()}`}
+                src={jobOffer.logoUrl}
                 alt={`${jobOffer.companyName} logo`}
                 className="max-h-full max-w-full"
+                loading="eager"
               />
             </Link>
           )}

@@ -52,9 +52,10 @@ const JobOfferItem = ({ jobOffer }: { jobOffer: FilteredJobOffer }) => {
         <Image
           width={48}
           height={48}
-          src={`${jobOffer.logoUrl}?v=${new Date().getTime()}`}
+          src={jobOffer.logoUrl ?? ""}
           alt={`${jobOffer.companyName} logo`}
           className="h-12 w-12 rounded-full object-cover"
+          loading="eager"
         />
 
         <div className="flex flex-col justify-center">

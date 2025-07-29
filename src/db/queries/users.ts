@@ -109,13 +109,17 @@ export async function upsertUser(
 
 export async function getUserAvatarUrl(userId: string) {
   try {
-    const [{ avatarUrl }] = await db
+    const result = await db
       .select({ avatarUrl: users.avatarUrl })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
 
-    return avatarUrl;
+    if (!result || result.length === 0) {
+      return null;
+    }
+
+    return result[0].avatarUrl;
   } catch (error: any) {
     console.error("Error fetching user avatar url:", error);
     throw new Error("Error fetching user avatar url");

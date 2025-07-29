@@ -42,9 +42,10 @@ export default function CompaniesListClient({ companies }: { companies: { compan
                                 <Image
                                     width={48}
                                     height={48}
-                                    src={`${item.company.logoUrl}?v=${new Date().getTime()}`}
+                                    src={item.company.logoUrl ?? ""}
                                     alt={`${item.company.name} logo`}
-                                    className="h-12 w-12 rounded-xl object-cover"
+                                    className="h-12 w-12 rounded-xl bg-gray-200 object-cover"
+                                    loading="eager"
                                 />
                             ) : (
                                 <Building2 width={48} height={48} />

@@ -239,7 +239,7 @@ export default function AvatarUploader({ userId }: { userId: string }) {
             <div className="h-32 w-32 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
               {!isAvatarFetching && avatarFile ? (
                 <Image
-                  src={`${avatarFile.url}?v=${new Date().getTime()}`}
+                  src={avatarFile.url}
                   alt="Avatar"
                   width={128}
                   height={128}

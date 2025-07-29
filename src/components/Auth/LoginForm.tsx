@@ -73,7 +73,7 @@ export default function LoginForm() {
       <h1 className="text-2xl font-bold">Log in to your account</h1>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
           <FormField
             control={form.control}
             name="email"
